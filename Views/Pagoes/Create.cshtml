@@ -1,0 +1,59 @@
+﻿@model patyy.Models.Pago
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Pago</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Monto" class="control-label"></label>
+                <input asp-for="Monto" class="form-control" />
+                <span asp-validation-for="Monto" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FechaHora" class="control-label"></label>
+                <input asp-for="FechaHora" class="form-control" />
+                <span asp-validation-for="FechaHora" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EstadoPago" class="control-label"></label>
+                <input asp-for="EstadoPago" class="form-control" />
+                <span asp-validation-for="EstadoPago" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BoletaIdPago" class="control-label"></label>
+                <select asp-for="BoletaIdPago" class ="form-control" asp-items="ViewBag.BoletaIdPago"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="BoletaPedidosIdPedido" class="control-label"></label>
+                <select asp-for="BoletaPedidosIdPedido" class ="form-control" asp-items="ViewBag.BoletaPedidosIdPedido"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="BoletaPedidosProductosIdProducto" class="control-label"></label>
+                <select asp-for="BoletaPedidosProductosIdProducto" class ="form-control" asp-items="ViewBag.BoletaPedidosProductosIdProducto"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="BoletaPedidosClienteIdCliente" class="control-label"></label>
+                <select asp-for="BoletaPedidosClienteIdCliente" class ="form-control" asp-items="ViewBag.BoletaPedidosClienteIdCliente"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
