@@ -19,6 +19,15 @@ namespace patyy.Controllers
         }
 
         // GET: Clientes
+        public async Task<IActionResult> Login()
+        {
+            return View(await _context.Clientes.ToListAsync());
+        }
+        public async Task<IActionResult> Register()
+        {
+            return View(await _context.Clientes.ToListAsync());
+        }
+
         public async Task<IActionResult> Index()
         {
             return View(await _context.Clientes.ToListAsync());

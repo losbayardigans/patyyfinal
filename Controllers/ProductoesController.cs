@@ -15,17 +15,13 @@ namespace patyy.Controllers
             _context = context;
         }
 
-        // GET: Productoes
-        public async Task<IActionResult> Index_Prod(int id)
+        public async Task<IActionResult> Index_prod()
         {
-            var index_prod = await _context.Productos.FindAsync(id);
-
-            if (index_prod == null)
-            {
-                return NotFound();
-            }
-                
-            return View(index_prod); // Retornamos la vista con el producto
+            var productos = _context.Productos
+                .Include(p => p.CategoriasIdCategoriaNavigation)
+                .Include(p => p.InventarioIdCategoriaNavigation)
+                .Include(p => p.ProveedorIdProveedorNavigation);
+            return View(await productos.ToListAsync());
         }
 
         public async Task<IActionResult> Index()
