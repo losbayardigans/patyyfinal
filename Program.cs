@@ -1,7 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using patyy.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<ProyectoFinalContext>(options =>
+    options.UseMySql(builder.Configuration.GetConnectionString("Connection"), Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.25-mariadb")));
+
 
 var app = builder.Build();
 

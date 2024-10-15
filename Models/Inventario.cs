@@ -7,7 +7,7 @@ public partial class Inventario
 {
     public int IdCategoria { get; set; }
 
-    public string? CantidadDisponible { get; set; }
+    public int? CantidadDisponible { get; set; }
 
     public string? NombreProducto { get; set; }
 

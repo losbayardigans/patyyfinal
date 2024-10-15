@@ -7,7 +7,11 @@ public partial class Estado
 {
     public int IdEstado { get; set; }
 
-    public virtual ICollection<Pago> Pagos { get; set; } = new List<Pago>();
+    public string? Descripcion { get; set; }
 
-    public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
+    public string? NombreEstado { get; set; }
+
+    public virtual ICollection<EstadoHasPago> EstadoHasPagos { get; set; } = new List<EstadoHasPago>();
+
+    public virtual ICollection<EstadoHasPedido> EstadoHasPedidos { get; set; } = new List<EstadoHasPedido>();
 }

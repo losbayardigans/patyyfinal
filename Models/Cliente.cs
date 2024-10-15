@@ -17,7 +17,9 @@ public partial class Cliente
 
     public string? Telefono { get; set; }
 
-    public string? Clientecol { get; set; }
+    public DateTime? FechaRegistro { get; set; }
+
+    public string? EstadoCliente { get; set; }
 
     public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
 }

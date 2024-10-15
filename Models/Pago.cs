@@ -9,7 +9,7 @@ public partial class Pago
 
     public int? Monto { get; set; }
 
-    public string? FechaHora { get; set; }
+    public DateTime? FechaHora { get; set; }
 
     public string? EstadoPago { get; set; }
 
@@ -23,5 +23,5 @@ public partial class Pago
 
     public virtual Boletum Boletum { get; set; } = null!;
 
-    public virtual ICollection<Estado> EstadoIdEstados { get; set; } = new List<Estado>();
+    public virtual ICollection<EstadoHasPago> EstadoHasPagos { get; set; } = new List<EstadoHasPago>();
 }

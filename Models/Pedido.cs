@@ -17,13 +17,15 @@ public partial class Pedido
 
     public int ClienteIdCliente { get; set; }
 
+    public DateTime? FechaPedido { get; set; }
+
     public virtual ICollection<Boletum> Boleta { get; set; } = new List<Boletum>();
 
     public virtual Cliente ClienteIdClienteNavigation { get; set; } = null!;
 
     public virtual ICollection<Envio> Envios { get; set; } = new List<Envio>();
 
-    public virtual ICollection<Estado> EstadoIdEstados { get; set; } = new List<Estado>();
+    public virtual ICollection<EstadoHasPedido> EstadoHasPedidos { get; set; } = new List<EstadoHasPedido>();
 
-    public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();
+    public virtual ICollection<PedidosHasProducto> PedidosHasProductos { get; set; } = new List<PedidosHasProducto>();
 }

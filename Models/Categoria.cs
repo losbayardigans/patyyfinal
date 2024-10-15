@@ -11,7 +11,9 @@ public partial class Categoria
 
     public string? NombreCategoria { get; set; }
 
-    public string? CantidadCategorias { get; set; }
+    public int? CantidadCategorias { get; set; }
+
+    public string? EstadoCategoria { get; set; }
 
     public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();
 }

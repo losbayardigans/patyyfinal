@@ -28,20 +28,29 @@ public partial class ProyectoFinalContext : DbContext
 
     public virtual DbSet<Estado> Estados { get; set; }
 
+    public virtual DbSet<EstadoHasPago> EstadoHasPagos { get; set; }
+
+    public virtual DbSet<EstadoHasPedido> EstadoHasPedidos { get; set; }
+
     public virtual DbSet<Inventario> Inventarios { get; set; }
 
     public virtual DbSet<Pago> Pagos { get; set; }
 
     public virtual DbSet<Pedido> Pedidos { get; set; }
 
+    public virtual DbSet<PedidosHasProducto> PedidosHasProductos { get; set; }
+
     public virtual DbSet<Producto> Productos { get; set; }
 
     public virtual DbSet<Proveedor> Proveedors { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=localhost;port=3306;database=proyecto_final;uid=root", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.32-mariadb"));
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+        }
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
@@ -59,6 +68,7 @@ public partial class ProyectoFinalContext : DbContext
             entity.HasIndex(e => new { e.PedidosIdPedido, e.PedidosProductosIdProducto, e.PedidosClienteIdCliente }, "fk_boleta_pedidos1_idx");
 
             entity.Property(e => e.IdPago)
+                .ValueGeneratedOnAdd()
                 .HasColumnType("int(11)")
                 .HasColumnName("id_pago");
             entity.Property(e => e.PedidosIdPedido)
@@ -70,6 +80,9 @@ public partial class ProyectoFinalContext : DbContext
             entity.Property(e => e.PedidosClienteIdCliente)
                 .HasColumnType("int(11)")
                 .HasColumnName("pedidos_cliente_id_cliente");
+            entity.Property(e => e.FechaHora)
+                .HasColumnType("datetime")
+                .HasColumnName("fecha_hora");
             entity.Property(e => e.MetodoPago)
                 .HasMaxLength(45)
                 .HasColumnName("metodo_pago");
@@ -94,6 +107,7 @@ public partial class ProyectoFinalContext : DbContext
             entity.HasIndex(e => new { e.PedidosIdPedido, e.PedidosProductosIdProducto }, "fk_carro_pedidos1_idx");
 
             entity.Property(e => e.IdCarro)
+                .ValueGeneratedOnAdd()
                 .HasColumnType("int(11)")
                 .HasColumnName("id_carro");
             entity.Property(e => e.PedidosIdPedido)
@@ -103,13 +117,13 @@ public partial class ProyectoFinalContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("pedidos_productos_id_producto");
             entity.Property(e => e.Cantidad)
-                .HasMaxLength(45)
+                .HasColumnType("int(11)")
                 .HasColumnName("cantidad");
             entity.Property(e => e.DescuentoAplicado)
-                .HasMaxLength(45)
+                .HasColumnType("int(11)")
                 .HasColumnName("descuento_aplicado");
             entity.Property(e => e.Precio)
-                .HasMaxLength(45)
+                .HasColumnType("int(11)")
                 .HasColumnName("precio");
         });
 
@@ -120,15 +134,17 @@ public partial class ProyectoFinalContext : DbContext
             entity.ToTable("categorias");
 
             entity.Property(e => e.IdCategoria)
-                .ValueGeneratedNever()
                 .HasColumnType("int(11)")
                 .HasColumnName("id_categoria");
             entity.Property(e => e.CantidadCategorias)
-                .HasMaxLength(45)
+                .HasColumnType("int(11)")
                 .HasColumnName("cantidad_categorias");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(45)
                 .HasColumnName("descripcion");
+            entity.Property(e => e.EstadoCategoria)
+                .HasColumnType("enum('activa','inactiva')")
+                .HasColumnName("estado_categoria");
             entity.Property(e => e.NombreCategoria)
                 .HasMaxLength(45)
                 .HasColumnName("nombre_categoria");
@@ -141,21 +157,23 @@ public partial class ProyectoFinalContext : DbContext
             entity.ToTable("cliente");
 
             entity.Property(e => e.IdCliente)
-                .ValueGeneratedNever()
                 .HasColumnType("int(11)")
                 .HasColumnName("id_cliente");
             entity.Property(e => e.Apellido)
                 .HasMaxLength(45)
                 .HasColumnName("apellido");
-            entity.Property(e => e.Clientecol)
-                .HasMaxLength(45)
-                .HasColumnName("clientecol");
             entity.Property(e => e.Correo)
                 .HasMaxLength(45)
                 .HasColumnName("correo");
             entity.Property(e => e.Direccion)
                 .HasMaxLength(45)
                 .HasColumnName("direccion");
+            entity.Property(e => e.EstadoCliente)
+                .HasColumnType("enum('activo','inactivo')")
+                .HasColumnName("estado_cliente");
+            entity.Property(e => e.FechaRegistro)
+                .HasColumnType("datetime")
+                .HasColumnName("fecha_registro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(45)
                 .HasColumnName("nombre");
@@ -175,6 +193,7 @@ public partial class ProyectoFinalContext : DbContext
             entity.HasIndex(e => new { e.PedidosIdPedido, e.PedidosProductosIdProducto, e.PedidosClienteIdCliente }, "fk_Envios_pedidos1_idx");
 
             entity.Property(e => e.IdEnvios)
+                .ValueGeneratedOnAdd()
                 .HasColumnType("int(11)")
                 .HasColumnName("id_Envios");
             entity.Property(e => e.PedidosIdPedido)
@@ -215,81 +234,105 @@ public partial class ProyectoFinalContext : DbContext
             entity.ToTable("estado");
 
             entity.Property(e => e.IdEstado)
-                .ValueGeneratedNever()
                 .HasColumnType("int(11)")
                 .HasColumnName("id_estado");
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(45)
+                .HasColumnName("descripcion");
+            entity.Property(e => e.NombreEstado)
+                .HasMaxLength(45)
+                .HasColumnName("nombre_estado");
+        });
 
-            entity.HasMany(d => d.Pagos).WithMany(p => p.EstadoIdEstados)
-                .UsingEntity<Dictionary<string, object>>(
-                    "EstadoHasPago",
-                    r => r.HasOne<Pago>().WithMany()
-                        .HasForeignKey("PagoIdPago", "PagoBoletaIdPago", "PagoBoletaPedidosIdPedido", "PagoBoletaPedidosProductosIdProducto", "PagoBoletaPedidosClienteIdCliente")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("fk_estado_has_pago_pago1"),
-                    l => l.HasOne<Estado>().WithMany()
-                        .HasForeignKey("EstadoIdEstado")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("fk_estado_has_pago_estado1"),
-                    j =>
-                    {
-                        j.HasKey("EstadoIdEstado", "PagoIdPago", "PagoBoletaIdPago", "PagoBoletaPedidosIdPedido", "PagoBoletaPedidosProductosIdProducto", "PagoBoletaPedidosClienteIdCliente")
-                            .HasName("PRIMARY")
-                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0, 0, 0 });
-                        j.ToTable("estado_has_pago");
-                        j.HasIndex(new[] { "EstadoIdEstado" }, "fk_estado_has_pago_estado1_idx");
-                        j.HasIndex(new[] { "PagoIdPago", "PagoBoletaIdPago", "PagoBoletaPedidosIdPedido", "PagoBoletaPedidosProductosIdProducto", "PagoBoletaPedidosClienteIdCliente" }, "fk_estado_has_pago_pago1_idx");
-                        j.IndexerProperty<int>("EstadoIdEstado")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("estado_id_estado");
-                        j.IndexerProperty<int>("PagoIdPago")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("pago_id_pago");
-                        j.IndexerProperty<int>("PagoBoletaIdPago")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("pago_boleta_id_pago");
-                        j.IndexerProperty<int>("PagoBoletaPedidosIdPedido")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("pago_boleta_pedidos_id_pedido");
-                        j.IndexerProperty<int>("PagoBoletaPedidosProductosIdProducto")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("pago_boleta_pedidos_productos_id_producto");
-                        j.IndexerProperty<int>("PagoBoletaPedidosClienteIdCliente")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("pago_boleta_pedidos_cliente_id_cliente");
-                    });
+        modelBuilder.Entity<EstadoHasPago>(entity =>
+        {
+            entity.HasKey(e => new { e.EstadoIdEstado, e.PagoIdPago, e.PagoBoletaIdPago, e.PagoBoletaPedidosIdPedido, e.PagoBoletaPedidosProductosIdProducto, e.PagoBoletaPedidosClienteIdCliente })
+                .HasName("PRIMARY")
+                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0, 0, 0 });
 
-            entity.HasMany(d => d.Pedidos).WithMany(p => p.EstadoIdEstados)
-                .UsingEntity<Dictionary<string, object>>(
-                    "EstadoHasPedido",
-                    r => r.HasOne<Pedido>().WithMany()
-                        .HasForeignKey("PedidosIdPedido", "PedidosProductosIdProducto", "PedidosClienteIdCliente")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("fk_estado_has_pedidos_pedidos1"),
-                    l => l.HasOne<Estado>().WithMany()
-                        .HasForeignKey("EstadoIdEstado")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("fk_estado_has_pedidos_estado1"),
-                    j =>
-                    {
-                        j.HasKey("EstadoIdEstado", "PedidosIdPedido", "PedidosProductosIdProducto", "PedidosClienteIdCliente")
-                            .HasName("PRIMARY")
-                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0 });
-                        j.ToTable("estado_has_pedidos");
-                        j.HasIndex(new[] { "EstadoIdEstado" }, "fk_estado_has_pedidos_estado1_idx");
-                        j.HasIndex(new[] { "PedidosIdPedido", "PedidosProductosIdProducto", "PedidosClienteIdCliente" }, "fk_estado_has_pedidos_pedidos1_idx");
-                        j.IndexerProperty<int>("EstadoIdEstado")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("estado_id_estado");
-                        j.IndexerProperty<int>("PedidosIdPedido")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("pedidos_id_pedido");
-                        j.IndexerProperty<int>("PedidosProductosIdProducto")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("pedidos_productos_id_producto");
-                        j.IndexerProperty<int>("PedidosClienteIdCliente")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("pedidos_cliente_id_cliente");
-                    });
+            entity.ToTable("estado_has_pago");
+
+            entity.HasIndex(e => e.EstadoIdEstado, "fk_estado_has_pago_estado1_idx");
+
+            entity.HasIndex(e => new { e.PagoIdPago, e.PagoBoletaIdPago, e.PagoBoletaPedidosIdPedido, e.PagoBoletaPedidosProductosIdProducto, e.PagoBoletaPedidosClienteIdCliente }, "fk_estado_has_pago_pago1_idx");
+
+            entity.Property(e => e.EstadoIdEstado)
+                .ValueGeneratedOnAdd()
+                .HasColumnType("int(11)")
+                .HasColumnName("estado_id_estado");
+            entity.Property(e => e.PagoIdPago)
+                .HasColumnType("int(11)")
+                .HasColumnName("pago_id_pago");
+            entity.Property(e => e.PagoBoletaIdPago)
+                .HasColumnType("int(11)")
+                .HasColumnName("pago_boleta_id_pago");
+            entity.Property(e => e.PagoBoletaPedidosIdPedido)
+                .HasColumnType("int(11)")
+                .HasColumnName("pago_boleta_pedidos_id_pedido");
+            entity.Property(e => e.PagoBoletaPedidosProductosIdProducto)
+                .HasColumnType("int(11)")
+                .HasColumnName("pago_boleta_pedidos_productos_id_producto");
+            entity.Property(e => e.PagoBoletaPedidosClienteIdCliente)
+                .HasColumnType("int(11)")
+                .HasColumnName("pago_boleta_pedidos_cliente_id_cliente");
+            entity.Property(e => e.FechaCambioEstado)
+                .HasColumnType("datetime")
+                .HasColumnName(" fecha_cambio_estado");
+            entity.Property(e => e.Observaciones)
+                .HasMaxLength(45)
+                .HasColumnName("observaciones");
+
+            entity.HasOne(d => d.EstadoIdEstadoNavigation).WithMany(p => p.EstadoHasPagos)
+                .HasForeignKey(d => d.EstadoIdEstado)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_estado_has_pago_estado1");
+
+            entity.HasOne(d => d.Pago).WithMany(p => p.EstadoHasPagos)
+                .HasForeignKey(d => new { d.PagoIdPago, d.PagoBoletaIdPago, d.PagoBoletaPedidosIdPedido, d.PagoBoletaPedidosProductosIdProducto, d.PagoBoletaPedidosClienteIdCliente })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_estado_has_pago_pago1");
+        });
+
+        modelBuilder.Entity<EstadoHasPedido>(entity =>
+        {
+            entity.HasKey(e => new { e.EstadoIdEstado, e.PedidosIdPedido, e.PedidosProductosIdProducto, e.PedidosClienteIdCliente })
+                .HasName("PRIMARY")
+                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0 });
+
+            entity.ToTable("estado_has_pedidos");
+
+            entity.HasIndex(e => e.EstadoIdEstado, "fk_estado_has_pedidos_estado1_idx");
+
+            entity.HasIndex(e => new { e.PedidosIdPedido, e.PedidosProductosIdProducto, e.PedidosClienteIdCliente }, "fk_estado_has_pedidos_pedidos1_idx");
+
+            entity.Property(e => e.EstadoIdEstado)
+                .HasColumnType("int(11)")
+                .HasColumnName("estado_id_estado");
+            entity.Property(e => e.PedidosIdPedido)
+                .HasColumnType("int(11)")
+                .HasColumnName("pedidos_id_pedido");
+            entity.Property(e => e.PedidosProductosIdProducto)
+                .HasColumnType("int(11)")
+                .HasColumnName("pedidos_productos_id_producto");
+            entity.Property(e => e.PedidosClienteIdCliente)
+                .HasColumnType("int(11)")
+                .HasColumnName("pedidos_cliente_id_cliente");
+            entity.Property(e => e.FechaCambioEstado)
+                .HasColumnType("datetime")
+                .HasColumnName("fecha_cambio_estado");
+            entity.Property(e => e.Observaciones)
+                .HasMaxLength(45)
+                .HasColumnName("observaciones");
+
+            entity.HasOne(d => d.EstadoIdEstadoNavigation).WithMany(p => p.EstadoHasPedidos)
+                .HasForeignKey(d => d.EstadoIdEstado)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_estado_has_pedidos_estado1");
+
+            entity.HasOne(d => d.Pedido).WithMany(p => p.EstadoHasPedidos)
+                .HasForeignKey(d => new { d.PedidosIdPedido, d.PedidosProductosIdProducto, d.PedidosClienteIdCliente })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_estado_has_pedidos_pedidos1");
         });
 
         modelBuilder.Entity<Inventario>(entity =>
@@ -299,11 +342,10 @@ public partial class ProyectoFinalContext : DbContext
             entity.ToTable("inventario");
 
             entity.Property(e => e.IdCategoria)
-                .ValueGeneratedNever()
                 .HasColumnType("int(11)")
                 .HasColumnName("id_categoria");
             entity.Property(e => e.CantidadDisponible)
-                .HasMaxLength(45)
+                .HasColumnType("int(11)")
                 .HasColumnName("cantidad_disponible");
             entity.Property(e => e.NombreProducto)
                 .HasMaxLength(45)
@@ -337,10 +379,10 @@ public partial class ProyectoFinalContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("boleta_pedidos_cliente_id_cliente");
             entity.Property(e => e.EstadoPago)
-                .HasMaxLength(45)
+                .HasColumnType("enum('pagado','pendiente')")
                 .HasColumnName("estado_pago");
             entity.Property(e => e.FechaHora)
-                .HasMaxLength(45)
+                .HasColumnType("datetime")
                 .HasColumnName("fecha_hora");
             entity.Property(e => e.Monto)
                 .HasColumnType("int(11)")
@@ -374,6 +416,9 @@ public partial class ProyectoFinalContext : DbContext
             entity.Property(e => e.EstadoPedido)
                 .HasMaxLength(45)
                 .HasColumnName("estado_pedido");
+            entity.Property(e => e.FechaPedido)
+                .HasColumnType("datetime")
+                .HasColumnName("fecha_pedido");
             entity.Property(e => e.MetodoPago)
                 .HasMaxLength(45)
                 .HasColumnName("metodo_pago");
@@ -385,48 +430,60 @@ public partial class ProyectoFinalContext : DbContext
                 .HasForeignKey(d => d.ClienteIdCliente)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_pedidos_cliente1");
+        });
 
-            entity.HasMany(d => d.Productos).WithMany(p => p.Pedidos)
-                .UsingEntity<Dictionary<string, object>>(
-                    "PedidosHasProducto",
-                    r => r.HasOne<Producto>().WithMany()
-                        .HasForeignKey("ProductosIdProducto", "ProductosCategoriasIdCategoria", "ProductosInventarioIdCategoria", "ProductosProveedorIdProveedor")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("fk_pedidos_has_productos_productos1"),
-                    l => l.HasOne<Pedido>().WithMany()
-                        .HasForeignKey("PedidosIdPedido", "PedidosProductosIdProducto", "PedidosClienteIdCliente")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("fk_pedidos_has_productos_pedidos1"),
-                    j =>
-                    {
-                        j.HasKey("PedidosIdPedido", "PedidosProductosIdProducto", "PedidosClienteIdCliente", "ProductosIdProducto", "ProductosCategoriasIdCategoria", "ProductosInventarioIdCategoria", "ProductosProveedorIdProveedor")
-                            .HasName("PRIMARY")
-                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0, 0, 0, 0 });
-                        j.ToTable("pedidos_has_productos");
-                        j.HasIndex(new[] { "PedidosIdPedido", "PedidosProductosIdProducto", "PedidosClienteIdCliente" }, "fk_pedidos_has_productos_pedidos1_idx");
-                        j.HasIndex(new[] { "ProductosIdProducto", "ProductosCategoriasIdCategoria", "ProductosInventarioIdCategoria", "ProductosProveedorIdProveedor" }, "fk_pedidos_has_productos_productos1_idx");
-                        j.IndexerProperty<int>("PedidosIdPedido")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("pedidos_id_pedido");
-                        j.IndexerProperty<int>("PedidosProductosIdProducto")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("pedidos_productos_id_producto");
-                        j.IndexerProperty<int>("PedidosClienteIdCliente")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("pedidos_cliente_id_cliente");
-                        j.IndexerProperty<int>("ProductosIdProducto")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("productos_id_producto");
-                        j.IndexerProperty<int>("ProductosCategoriasIdCategoria")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("productos_categorias_id_categoria");
-                        j.IndexerProperty<int>("ProductosInventarioIdCategoria")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("productos_inventario_id_categoria");
-                        j.IndexerProperty<int>("ProductosProveedorIdProveedor")
-                            .HasColumnType("int(11)")
-                            .HasColumnName("productos_Proveedor_id_Proveedor");
-                    });
+        modelBuilder.Entity<PedidosHasProducto>(entity =>
+        {
+            entity.HasKey(e => new { e.PedidosIdPedido, e.PedidosProductosIdProducto, e.PedidosClienteIdCliente, e.ProductosIdProducto, e.ProductosCategoriasIdCategoria, e.ProductosInventarioIdCategoria, e.ProductosProveedorIdProveedor })
+                .HasName("PRIMARY")
+                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0, 0, 0, 0 });
+
+            entity.ToTable("pedidos_has_productos");
+
+            entity.HasIndex(e => new { e.PedidosIdPedido, e.PedidosProductosIdProducto, e.PedidosClienteIdCliente }, "fk_pedidos_has_productos_pedidos1_idx");
+
+            entity.HasIndex(e => new { e.ProductosIdProducto, e.ProductosCategoriasIdCategoria, e.ProductosInventarioIdCategoria, e.ProductosProveedorIdProveedor }, "fk_pedidos_has_productos_productos1_idx");
+
+            entity.Property(e => e.PedidosIdPedido)
+                .HasColumnType("int(11)")
+                .HasColumnName("pedidos_id_pedido");
+            entity.Property(e => e.PedidosProductosIdProducto)
+                .HasColumnType("int(11)")
+                .HasColumnName("pedidos_productos_id_producto");
+            entity.Property(e => e.PedidosClienteIdCliente)
+                .HasColumnType("int(11)")
+                .HasColumnName("pedidos_cliente_id_cliente");
+            entity.Property(e => e.ProductosIdProducto)
+                .HasColumnType("int(11)")
+                .HasColumnName("productos_id_producto");
+            entity.Property(e => e.ProductosCategoriasIdCategoria)
+                .HasColumnType("int(11)")
+                .HasColumnName("productos_categorias_id_categoria");
+            entity.Property(e => e.ProductosInventarioIdCategoria)
+                .HasColumnType("int(11)")
+                .HasColumnName("productos_inventario_id_categoria");
+            entity.Property(e => e.ProductosProveedorIdProveedor)
+                .HasColumnType("int(11)")
+                .HasColumnName("productos_Proveedor_id_Proveedor");
+            entity.Property(e => e.Cantidad)
+                .HasColumnType("int(11)")
+                .HasColumnName("cantidad");
+            entity.Property(e => e.PedidosHasProductoscol)
+                .HasMaxLength(45)
+                .HasColumnName("pedidos_has_productoscol");
+            entity.Property(e => e.Precio)
+                .HasColumnType("int(11)")
+                .HasColumnName("precio");
+
+            entity.HasOne(d => d.Pedido).WithMany(p => p.PedidosHasProductos)
+                .HasForeignKey(d => new { d.PedidosIdPedido, d.PedidosProductosIdProducto, d.PedidosClienteIdCliente })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_pedidos_has_productos_pedidos1");
+
+            entity.HasOne(d => d.Producto).WithMany(p => p.PedidosHasProductos)
+                .HasForeignKey(d => new { d.ProductosIdProducto, d.ProductosCategoriasIdCategoria, d.ProductosInventarioIdCategoria, d.ProductosProveedorIdProveedor })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_pedidos_has_productos_productos1");
         });
 
         modelBuilder.Entity<Producto>(entity =>
@@ -444,6 +501,7 @@ public partial class ProyectoFinalContext : DbContext
             entity.HasIndex(e => e.InventarioIdCategoria, "fk_productos_inventario1_idx");
 
             entity.Property(e => e.IdProducto)
+                .ValueGeneratedOnAdd()
                 .HasColumnType("int(11)")
                 .HasColumnName("id_producto");
             entity.Property(e => e.CategoriasIdCategoria)
@@ -461,6 +519,12 @@ public partial class ProyectoFinalContext : DbContext
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(45)
                 .HasColumnName("descripcion");
+            entity.Property(e => e.EstadoProducto)
+                .HasColumnType("enum('disponible','agotado')")
+                .HasColumnName("estado_producto");
+            entity.Property(e => e.Precio)
+                .HasColumnType("int(11)")
+                .HasColumnName("precio");
 
             entity.HasOne(d => d.CategoriasIdCategoriaNavigation).WithMany(p => p.Productos)
                 .HasForeignKey(d => d.CategoriasIdCategoria)
@@ -485,12 +549,17 @@ public partial class ProyectoFinalContext : DbContext
             entity.ToTable("proveedor");
 
             entity.Property(e => e.IdProveedor)
-                .ValueGeneratedNever()
                 .HasColumnType("int(11)")
                 .HasColumnName("id_Proveedor");
             entity.Property(e => e.Contacto).HasMaxLength(45);
             entity.Property(e => e.Direccion).HasMaxLength(45);
             entity.Property(e => e.Email).HasMaxLength(45);
+            entity.Property(e => e.EstadoProveedor)
+                .HasColumnType("enum('activo','inactivo')")
+                .HasColumnName("estado_proveedor");
+            entity.Property(e => e.FechaProveedor)
+                .HasColumnType("datetime")
+                .HasColumnName("fecha_proveedor");
             entity.Property(e => e.Nombre).HasMaxLength(45);
             entity.Property(e => e.Telefono).HasMaxLength(45);
         });

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,10 +16,25 @@ namespace patyy.Controllers
         }
 
         // GET: Productoes
+        public async Task<IActionResult> Index_Prod(int id)
+        {
+            var index_prod = await _context.Productos.FindAsync(id);
+
+            if (index_prod == null)
+            {
+                return NotFound();
+            }
+                
+            return View(index_prod); // Retornamos la vista con el producto
+        }
+
         public async Task<IActionResult> Index()
         {
-            var proyectoFinalContext = _context.Productos.Include(p => p.CategoriasIdCategoriaNavigation).Include(p => p.InventarioIdCategoriaNavigation).Include(p => p.ProveedorIdProveedorNavigation);
-            return View(await proyectoFinalContext.ToListAsync());
+            var productos = _context.Productos
+                .Include(p => p.CategoriasIdCategoriaNavigation)
+                .Include(p => p.InventarioIdCategoriaNavigation)
+                .Include(p => p.ProveedorIdProveedorNavigation);
+            return View(await productos.ToListAsync());
         }
 
         // GET: Productoes/Details/5
@@ -38,6 +50,7 @@ namespace patyy.Controllers
                 .Include(p => p.InventarioIdCategoriaNavigation)
                 .Include(p => p.ProveedorIdProveedorNavigation)
                 .FirstOrDefaultAsync(m => m.IdProducto == id);
+
             if (producto == null)
             {
                 return NotFound();
@@ -45,12 +58,6 @@ namespace patyy.Controllers
 
             return View(producto);
         }
-
-        
-
-
-
-
 
         // GET: Productoes/Create
         public IActionResult Create()
@@ -62,8 +69,6 @@ namespace patyy.Controllers
         }
 
         // POST: Productoes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdProducto,Descripcion,CantidadProductos,CategoriasIdCategoria,InventarioIdCategoria,ProveedorIdProveedor")] Producto producto)
@@ -74,6 +79,8 @@ namespace patyy.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            // Si el modelo no es válido, volvemos a mostrar el formulario con los datos actuales
             ViewData["CategoriasIdCategoria"] = new SelectList(_context.Categorias, "IdCategoria", "IdCategoria", producto.CategoriasIdCategoria);
             ViewData["InventarioIdCategoria"] = new SelectList(_context.Inventarios, "IdCategoria", "IdCategoria", producto.InventarioIdCategoria);
             ViewData["ProveedorIdProveedor"] = new SelectList(_context.Proveedors, "IdProveedor", "IdProveedor", producto.ProveedorIdProveedor);
@@ -93,6 +100,7 @@ namespace patyy.Controllers
             {
                 return NotFound();
             }
+
             ViewData["CategoriasIdCategoria"] = new SelectList(_context.Categorias, "IdCategoria", "IdCategoria", producto.CategoriasIdCategoria);
             ViewData["InventarioIdCategoria"] = new SelectList(_context.Inventarios, "IdCategoria", "IdCategoria", producto.InventarioIdCategoria);
             ViewData["ProveedorIdProveedor"] = new SelectList(_context.Proveedors, "IdProveedor", "IdProveedor", producto.ProveedorIdProveedor);
@@ -100,8 +108,6 @@ namespace patyy.Controllers
         }
 
         // POST: Productoes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdProducto,Descripcion,CantidadProductos,CategoriasIdCategoria,InventarioIdCategoria,ProveedorIdProveedor")] Producto producto)
@@ -131,6 +137,7 @@ namespace patyy.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["CategoriasIdCategoria"] = new SelectList(_context.Categorias, "IdCategoria", "IdCategoria", producto.CategoriasIdCategoria);
             ViewData["InventarioIdCategoria"] = new SelectList(_context.Inventarios, "IdCategoria", "IdCategoria", producto.InventarioIdCategoria);
             ViewData["ProveedorIdProveedor"] = new SelectList(_context.Proveedors, "IdProveedor", "IdProveedor", producto.ProveedorIdProveedor);
@@ -150,6 +157,7 @@ namespace patyy.Controllers
                 .Include(p => p.InventarioIdCategoriaNavigation)
                 .Include(p => p.ProveedorIdProveedorNavigation)
                 .FirstOrDefaultAsync(m => m.IdProducto == id);
+
             if (producto == null)
             {
                 return NotFound();
@@ -167,9 +175,9 @@ namespace patyy.Controllers
             if (producto != null)
             {
                 _context.Productos.Remove(producto);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

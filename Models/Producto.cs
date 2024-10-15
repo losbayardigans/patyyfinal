@@ -11,17 +11,21 @@ public partial class Producto
 
     public string? CantidadProductos { get; set; }
 
+    public int? Precio { get; set; }
+
     public int CategoriasIdCategoria { get; set; }
 
     public int InventarioIdCategoria { get; set; }
 
     public int ProveedorIdProveedor { get; set; }
 
+    public string? EstadoProducto { get; set; }
+
     public virtual Categoria CategoriasIdCategoriaNavigation { get; set; } = null!;
 
     public virtual Inventario InventarioIdCategoriaNavigation { get; set; } = null!;
 
-    public virtual Proveedor ProveedorIdProveedorNavigation { get; set; } = null!;
+    public virtual ICollection<PedidosHasProducto> PedidosHasProductos { get; set; } = new List<PedidosHasProducto>();
 
-    public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
+    public virtual Proveedor ProveedorIdProveedorNavigation { get; set; } = null!;
 }

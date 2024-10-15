@@ -7,11 +7,11 @@ public partial class Carro
 {
     public int IdCarro { get; set; }
 
-    public string? Cantidad { get; set; }
+    public int? Cantidad { get; set; }
 
-    public string? DescuentoAplicado { get; set; }
+    public int? DescuentoAplicado { get; set; }
 
-    public string? Precio { get; set; }
+    public int? Precio { get; set; }
 
     public int PedidosIdPedido { get; set; }
 
