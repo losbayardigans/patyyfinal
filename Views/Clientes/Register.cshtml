@@ -1,7 +1,29 @@
 ﻿@model IEnumerable<patyy.Models.Cliente>
 
-    <html>
-        <h1>
-            hola
-        </h1>
-    </html>
+
+
+<h2>Registro de Cliente</h2>
+
+<form asp-action="Register" method="post">
+    <div class="form-group">
+        <label for="Nombre">Nombre</label>
+        <input type="text" class="form-control" id="Nombre" name="Nombre" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Apellido">Apellido</label>
+        <input type="text" class="form-control" id="Apellido" name="Apellido" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Correo">Correo</label>
+        <input type="email" class="form-control" id="Correo" name="Correo" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Contraseña">Contraseña</label>
+        <input type="password" class="form-control" id="Contraseña" name="Contraseña" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Registrar</button>
+</form>

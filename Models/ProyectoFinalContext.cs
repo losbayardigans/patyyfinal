@@ -44,13 +44,10 @@ public partial class ProyectoFinalContext : DbContext
 
     public virtual DbSet<Proveedor> Proveedors { get; set; }
 
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-        }
-    }
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseMySql("server=localhost;port=3306;database=proyecto_final;uid=root", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.32-mariadb"));
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
@@ -162,6 +159,9 @@ public partial class ProyectoFinalContext : DbContext
             entity.Property(e => e.Apellido)
                 .HasMaxLength(45)
                 .HasColumnName("apellido");
+            entity.Property(e => e.Contraseña)
+                .HasMaxLength(45)
+                .HasColumnName("contraseña");
             entity.Property(e => e.Correo)
                 .HasMaxLength(45)
                 .HasColumnName("correo");

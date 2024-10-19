@@ -26,16 +26,25 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                           <li class="nav-item">
-                            <button>
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="Register">Registrar</a>
-                            </button>
+
+                        @if (Context.Session.GetInt32("IdCliente") != null) // verificamos si el usuario se ha registrado una vez registrado se le dejara iniciado 
+                        {
+                            <li class="nav-item">
+                                <span class="nav-link text-dark">Hola, @Context.Session.GetString("NombreCliente")</span> <!-- aca te muestro mi nombre pe mi king  -->
                             </li>
-                        <li class="nav-item">
-                            <button>
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="login">Iniciar</a>
-                            </button>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="Logout">Cerrar Sesión</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="Register">Registrar</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="Login">Iniciar</a>
+                            </li>
+                        }
 
                     </ul>
                 </div>

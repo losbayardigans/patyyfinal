@@ -13,6 +13,8 @@ public partial class Cliente
 
     public string? Correo { get; set; }
 
+    public string Contraseña { get; set; } = null!;
+
     public string? Direccion { get; set; }
 
     public string? Telefono { get; set; }

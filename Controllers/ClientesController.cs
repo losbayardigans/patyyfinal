@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -19,14 +21,82 @@ namespace patyy.Controllers
         }
 
         // GET: Clientes
-        public async Task<IActionResult> Login()
+        
+        public IActionResult Login()
         {
-            return View(await _context.Clientes.ToListAsync());
+            return View();
         }
-        public async Task<IActionResult> Register()
+
+        // POST: Clientes/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        //configuramos el login para que pueda iniciar sesion tomando solo correo y contraseña 
+        public async Task<IActionResult> Login(string correo, string contraseña)
         {
-            return View(await _context.Clientes.ToListAsync());
+            if (string.IsNullOrEmpty(correo) || string.IsNullOrEmpty(contraseña))
+            {
+                ModelState.AddModelError(string.Empty, "esto es obligatorio pe mi kong .");
+                return View();
+            }
+
+            // buscamos al cliente por su correo y contraseña solo al logearse , al registrarse se le pedira su nombre y apellido 
+            var cliente = await _context.Clientes
+                .FirstOrDefaultAsync(c => c.Correo == correo && c.Contraseña == contraseña);
+
+            if (cliente == null)
+            {
+                ModelState.AddModelError(string.Empty, "Correo o contraseña incorrectos.");
+                return View();
+            }
+
+            // Guardar datos en sesión para el cliente autenticado
+            HttpContext.Session.SetInt32("IdCliente", cliente.IdCliente);
+            HttpContext.Session.SetString("NombreCliente", cliente.Nombre ?? "Usuario");
+
+            return RedirectToAction("Index", "Home");
         }
+
+        // GET: Clientes/Logout
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear(); // Limpiar la sesión
+            return RedirectToAction("Login");
+        }
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(Cliente model)
+        {
+            if (ModelState.IsValid)
+            {
+                var cliente = new Cliente
+                {
+                    Nombre = model.Nombre,
+                    Apellido = model.Apellido,
+                    Correo = model.Correo,
+                    Contraseña = model.Contraseña, //falta hasearla tocara mover el codigo completo gaaa
+                    FechaRegistro = DateTime.Now
+                };
+                //aca agregagamos y guardamos en la bs tomando el idcliente 
+                _context.Clientes.Add(cliente);
+                await _context.SaveChangesAsync();
+
+                // Guardar ID del cliente en sesión
+                HttpContext.Session.SetInt32("IdCliente", cliente.IdCliente);
+
+                return RedirectToAction( "Login");
+            }
+            return View(model);
+        }
+
+
+
+
+
 
         public async Task<IActionResult> Index()
         {
