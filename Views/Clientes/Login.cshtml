@@ -1,30 +1,30 @@
-﻿@model IEnumerable<patyy.Models.Cliente>
+﻿@model patyy.Models.Cliente
 
-@{
-    ViewData["Title"] = "Login";
-}
+<!-- Enlace al CSS específico del login -->
+<head>
+    <link rel="stylesheet" href="~/css/login.css" />
+</head>
 
-<h2>Login</h2>
+<body>
+    <div class="registro">
+        <h2>Iniciar Sesión</h2>
 
-<form asp-action="Login" method="post">
-    <div>
-        <label for="correo">Correo:</label>
-        <input type="email" id="correo" name="correo" required />
+        <form asp-action="Login" method="post">
+            <div class="input-group">
+                <input type="email" id="correo" name="correo" required placeholder=" " />
+                <label for="correo">Correo</label> <!-- Etiqueta flotante -->
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="contraseña" name="contraseña" required placeholder=" " />
+                <label for="contraseña">Contraseña</label> <!-- Etiqueta flotante -->
+            </div>
+
+            <button type="submit">Iniciar Sesión</button>
+
+            <div class="message">
+                <p>¿No tienes cuenta? <a asp-action="Register">Regístrate aquí</a></p>
+            </div>
+        </form>
     </div>
-
-    <div>
-        <label for="contraseña">Contraseña:</label>
-        <input type="password" id="contraseña" name="contraseña" required />
-    </div>
-
-    <button type="submit">Iniciar Sesión</button>
-
-    <p>¿No tienes cuenta? <a asp-action="Register">Regístrate aquí</a></p>
-
-    @if (!ViewData.ModelState.IsValid)
-    {
-        <div style="color: red;">
-            @Html.ValidationSummary()
-        </div>
-    }
-</form>
+</body>
