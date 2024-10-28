@@ -1,0 +1,50 @@
+﻿@model patyy.Models.PedidosHasProducto
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>PedidosHasProducto</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="PedidosIdPedido" />
+            <input type="hidden" asp-for="PedidosProductosIdProducto" />
+            <input type="hidden" asp-for="PedidosClienteIdCliente" />
+            <input type="hidden" asp-for="ProductosIdProducto" />
+            <input type="hidden" asp-for="ProductosCategoriasIdCategoria" />
+            <input type="hidden" asp-for="ProductosInventarioIdCategoria" />
+            <input type="hidden" asp-for="ProductosProveedorIdProveedor" />
+            <div class="form-group">
+                <label asp-for="Cantidad" class="control-label"></label>
+                <input asp-for="Cantidad" class="form-control" />
+                <span asp-validation-for="Cantidad" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Precio" class="control-label"></label>
+                <input asp-for="Precio" class="form-control" />
+                <span asp-validation-for="Precio" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PedidosHasProductoscol" class="control-label"></label>
+                <input asp-for="PedidosHasProductoscol" class="form-control" />
+                <span asp-validation-for="PedidosHasProductoscol" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

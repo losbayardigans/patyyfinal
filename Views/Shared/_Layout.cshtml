@@ -3,16 +3,40 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - patyy</title>
+    <title>@ViewData["Title"] - Paty</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/patyy.styles.css" asp-append-version="true" />
+    <style>
+        .custom-navbar {
+            background-color: #f8f9fa; /* Gris suave */
+            border-bottom: 2px solid #ddd;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: #343a40; /* Gris oscuro para el logo */
+        }
+
+        .navbar-nav .nav-link {
+            color: #555; /* Color gris para los enlaces */
+            font-size: 1.1rem;
+        }
+
+            .navbar-nav .nav-link:hover {
+                color: #007bff; /* Color azul al pasar el mouse */
+            }
+
+        .navbar-toggler-icon {
+            filter: brightness(0.5); /* Hacer el ícono de menú más visible en fondo gris */
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm custom-navbar">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">patyy</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Paty</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -20,27 +44,28 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Productoes" asp-action="Index_prod">Productos</a>
+                            <a class="nav-link" asp-area="" asp-controller="Productoes" asp-action="Index_prod">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+
                         @if (Context.Session.GetInt32("IdCliente") != null)
                         {
                             <li class="nav-item">
-                                <span class="nav-link text-dark">Hola, @Context.Session.GetString("NombreCliente")</span>
+                                <span class="nav-link">Hola, @Context.Session.GetString("NombreCliente")</span>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="Logout">Cerrar Sesión</a>
+                                <a class="nav-link" asp-area="" asp-controller="Clientes" asp-action="Logout">Cerrar Sesión</a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="Register">Registrar</a>
+                                <a class="nav-link" asp-area="" asp-controller="Clientes" asp-action="Register">Registrar</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="Login">Iniciar</a>
+                                <a class="nav-link" asp-area="" asp-controller="Clientes" asp-action="Login">Iniciar Sesion</a>
                             </li>
                         }
                     </ul>
@@ -57,7 +82,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2024 - patyy - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2024 - Paty - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
 
