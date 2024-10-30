@@ -8,28 +8,30 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/patyy.styles.css" asp-append-version="true" />
     <style>
+        <style >
         .custom-navbar {
-            background-color: #f8f9fa; /* Gris suave */
+            background-color: #f8f9fa;
             border-bottom: 2px solid #ddd;
         }
 
         .navbar-brand {
             font-weight: bold;
-            color: #343a40; /* Gris oscuro para el logo */
+            color: #343a40;
         }
 
         .navbar-nav .nav-link {
-            color: #555; /* Color gris para los enlaces */
+            color: #555;
             font-size: 1.1rem;
         }
 
             .navbar-nav .nav-link:hover {
-                color: #007bff; /* Color azul al pasar el mouse */
+                color: #007bff;
             }
 
         .navbar-toggler-icon {
-            filter: brightness(0.5); /* Hacer el ícono de menú más visible en fondo gris */
+            filter: brightness(0.5);
         }
+    </style>
     </style>
 </head>
 <body>
@@ -47,9 +49,10 @@
                             <a class="nav-link" asp-area="" asp-controller="Productoes" asp-action="Index_prod">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-controller="Carroes" asp-action="Carrito">
+                                <img src="~/img/carrito.png" alt="Carrito de Compras" class="img-fluid" style="height: 24px;" />
+                            </a>
                         </li>
-
                         @if (Context.Session.GetInt32("IdCliente") != null)
                         {
                             <li class="nav-item">
@@ -65,7 +68,7 @@
                                 <a class="nav-link" asp-area="" asp-controller="Clientes" asp-action="Register">Registrar</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Clientes" asp-action="Login">Iniciar Sesion</a>
+                                <a class="nav-link" asp-area="" asp-controller="Clientes" asp-action="Login">Iniciar Sesión</a>
                             </li>
                         }
                     </ul>

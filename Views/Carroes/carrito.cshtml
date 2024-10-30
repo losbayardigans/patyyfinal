@@ -1,0 +1,57 @@
+﻿@model IEnumerable<patyy.Models.Carro>
+
+@{
+    ViewData["Title"] = "Carrito de Compras";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="container mt-4">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Producto ID</th>
+                <th>Precio Unitario</th>
+                <th>Cantidad</th>
+                <th>Descuento Aplicado (%)</th>
+                <th>Total por Producto</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="6" class="text-center">No hay productos en el carrito.</td>
+                </tr>
+            }
+            else
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.PedidosProductosIdProducto</td>
+                        <td>@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", item.Precio)</td>
+                        <td>@item.Cantidad</td>
+                        <td>@item.DescuentoAplicado %</td>
+                        <td>@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", item.Total)</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.IdCarro" class="btn btn-primary btn-sm">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@item.IdCarro" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    @if (Model.Any())
+    {
+        <div class="text-right">
+            <h4>Total del Carrito: @String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", ViewBag.CartTotal)</h4>
+        </div>
+        <div class="text-right">
+            <a asp-action="Checkout" class="btn btn-success mt-3">Proceder al Pago</a>
+        </div>
+    }
+</div>

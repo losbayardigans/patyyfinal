@@ -19,6 +19,17 @@ namespace patyy.Controllers
         }
 
         // GET: Carroes
+
+        public async Task<IActionResult> carrito()
+        {
+            var carros = await _context.Carros.ToListAsync();
+
+            // Calculate cart total
+            ViewBag.CartTotal = carros.Sum(c => c.Cantidad.GetValueOrDefault() * (c.Precio.GetValueOrDefault() - c.DescuentoAplicado));
+
+            return View("carrito", carros);
+        }
+
         public async Task<IActionResult> Index()
         {
             return View(await _context.Carros.ToListAsync());

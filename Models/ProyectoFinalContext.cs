@@ -126,6 +126,9 @@ public partial class ProyectoFinalContext : DbContext
             entity.Property(e => e.Precio)
                 .HasColumnType("int(11)")
                 .HasColumnName("precio");
+            entity.Property(e => e.Total)
+                .HasColumnType("int(11)")
+                .HasColumnName("Total");
         });
 
         modelBuilder.Entity<Categoria>(entity =>
@@ -508,6 +511,9 @@ public partial class ProyectoFinalContext : DbContext
                 .ValueGeneratedOnAdd()
                 .HasColumnType("int(11)")
                 .HasColumnName("id_producto");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(45)
+                .HasColumnName("Nombre");
             entity.Property(e => e.CategoriasIdCategoria)
                 .HasColumnType("int(11)")
                 .HasColumnName("categorias_id_categoria");

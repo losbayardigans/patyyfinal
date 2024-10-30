@@ -16,4 +16,6 @@ public partial class Carro
     public int PedidosIdPedido { get; set; }
 
     public int PedidosProductosIdProducto { get; set; }
+
+    public int Total {  get; set; }
 }
