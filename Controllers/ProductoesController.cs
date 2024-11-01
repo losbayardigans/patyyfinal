@@ -28,11 +28,12 @@ namespace patyy.Controllers
         public async Task<IActionResult> Index()
         {
             var productos = _context.Productos
-                .Include(p => p.CategoriasIdCategoriaNavigation)
-                .Include(p => p.InventarioIdCategoriaNavigation)
-                .Include(p => p.ProveedorIdProveedorNavigation);
+                 .Include(p => p.CategoriasIdCategoriaNavigation)
+                 .Include(p => p.InventarioIdCategoriaNavigation)
+                 .Include(p => p.ProveedorIdProveedorNavigation);
             return View(await productos.ToListAsync());
         }
+
 
         // GET: Productoes/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -59,31 +60,46 @@ namespace patyy.Controllers
         // GET: Productoes/Create
         public IActionResult Create()
         {
-            ViewData["CategoriasIdCategoria"] = new SelectList(_context.Categorias, "IdCategoria", "IdCategoria");
-            ViewData["InventarioIdCategoria"] = new SelectList(_context.Inventarios, "IdCategoria", "IdCategoria");
-            ViewData["ProveedorIdProveedor"] = new SelectList(_context.Proveedors, "IdProveedor", "IdProveedor");
-            return View();
+            {
+                ViewData["CategoriasIdCategoria"] = new SelectList(_context.Categorias, "IdCategoria", "IdCategoria");
+                ViewData["InventarioIdCategoria"] = new SelectList(_context.Inventarios, "IdCategoria", "IdCategoria");
+                ViewData["ProveedorIdProveedor"] = new SelectList(_context.Proveedors, "IdProveedor", "IdProveedor");
+                return View();
+            }
         }
 
         // POST: Productoes/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdProducto,Descripcion,CantidadProductos,CategoriasIdCategoria,InventarioIdCategoria,ProveedorIdProveedor")] Producto producto)
+        public async Task<IActionResult> Create([Bind("Descripcion,CantidadProductos,CategoriasIdCategoria,InventarioIdCategoria,ProveedorIdProveedor")] Producto producto)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(producto);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(producto);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    // Manejar excepciones (como violaciones de clave foránea)
+                    ModelState.AddModelError(string.Empty, $"Ocurrió un error: {ex.Message}");
+                }
             }
 
-            // Si el modelo no es válido, volvemos a mostrar el formulario con los datos actuales
-            ViewData["CategoriasIdCategoria"] = new SelectList(_context.Categorias, "IdCategoria", "IdCategoria", producto.CategoriasIdCategoria);
+            // Si llegamos aquí, algo falló; vuelve a mostrar el formulario
+            ViewData["CategoriasIdCategoria"] = new SelectList(_context.Categorias, "IdCategoria", "NombreCategoria", producto.CategoriasIdCategoria);
             ViewData["InventarioIdCategoria"] = new SelectList(_context.Inventarios, "IdCategoria", "IdCategoria", producto.InventarioIdCategoria);
             ViewData["ProveedorIdProveedor"] = new SelectList(_context.Proveedors, "IdProveedor", "IdProveedor", producto.ProveedorIdProveedor);
             return View(producto);
         }
 
+
+
+
+
+        // Método para obtener la URL de la imagen basada en la descripción del produc
         // GET: Productoes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {

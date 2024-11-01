@@ -38,6 +38,7 @@ app.UseRouting();
 
 // **Middleware de sesión: Debe ir antes de la autorización.**
 app.UseSession();
+app.UseStaticFiles();
 
 app.UseAuthorization();
 

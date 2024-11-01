@@ -48,7 +48,6 @@
     }
 </style>
 
-<!-- Contenedor de productos -->
 <main class="col-md-9 col-lg-10 pt-4 container">
     <div class="row">
         @foreach (var Producto in Model)
@@ -56,9 +55,13 @@
             <div class="col-6 col-md-4 col-lg-3 mb-4">
                 <div class="carta h-100 text-center">
                     <div class="carta-body">
-                        <div class="imagen-placeholder mb-3"></div>
+                        <div class="imagen-placeholder mb-3">
+                            <img src="@Url.Content(Producto.ImageUrl ?? "~/img/snacks.jpg")" alt="@Producto.Nombre" class="img-fluid" style="height: 100%; width: 100%; object-fit: cover; border-radius: 8px;" />
+                        </div>
                         <h6 class="carta-title">@Producto.Nombre</h6>
-                        <p class="carta-text">@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", Producto.Precio)</p>
+                        <p class="carta-text">@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", Producto.CantidadProductos != null ? Convert.ToInt32(Producto.CantidadProductos) : 0)</p>
+                        <p class="carta-text">@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0}", Producto.Descripcion ?? "Sin descripción")</p>
+                        <p class="carta-text">@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", Producto.Precio != null ? Producto.Precio : 0)</p>
 
                         <!-- Formulario para añadir al carro -->
                         <form asp-controller="Carroes" asp-action="carrito" method="post">

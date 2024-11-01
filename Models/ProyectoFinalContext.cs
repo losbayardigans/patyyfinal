@@ -45,12 +45,8 @@ public partial class ProyectoFinalContext : DbContext
     public virtual DbSet<Proveedor> Proveedors { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured!)
-        {
-
-        }
-    }
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseMySql("server=localhost;port=3306;database=proyecto_final;uid=root", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.32-mariadb"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -126,9 +122,7 @@ public partial class ProyectoFinalContext : DbContext
             entity.Property(e => e.Precio)
                 .HasColumnType("int(11)")
                 .HasColumnName("precio");
-            entity.Property(e => e.Total)
-                .HasColumnType("int(11)")
-                .HasColumnName("Total");
+            entity.Property(e => e.Total).HasColumnType("int(11)");
         });
 
         modelBuilder.Entity<Categoria>(entity =>
@@ -511,9 +505,6 @@ public partial class ProyectoFinalContext : DbContext
                 .ValueGeneratedOnAdd()
                 .HasColumnType("int(11)")
                 .HasColumnName("id_producto");
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(45)
-                .HasColumnName("Nombre");
             entity.Property(e => e.CategoriasIdCategoria)
                 .HasColumnType("int(11)")
                 .HasColumnName("categorias_id_categoria");
@@ -532,6 +523,8 @@ public partial class ProyectoFinalContext : DbContext
             entity.Property(e => e.EstadoProducto)
                 .HasColumnType("enum('disponible','agotado')")
                 .HasColumnName("estado_producto");
+            entity.Property(e => e.ImageUrl).HasMaxLength(100);
+            entity.Property(e => e.Nombre).HasMaxLength(45);
             entity.Property(e => e.Precio)
                 .HasColumnType("int(11)")
                 .HasColumnName("precio");

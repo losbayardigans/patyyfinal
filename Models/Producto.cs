@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace patyy.Models;
 
@@ -7,7 +8,9 @@ public partial class Producto
 {
     public int IdProducto { get; set; }
 
-    public string? Nombre { get; set; }
+    public string Nombre { get; set; } = null!;
+  
+    public string? ImageUrl { get; set; }
 
     public string? Descripcion { get; set; }
 
