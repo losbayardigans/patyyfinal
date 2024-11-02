@@ -338,13 +338,13 @@ public partial class ProyectoFinalContext : DbContext
 
         modelBuilder.Entity<Inventario>(entity =>
         {
-            entity.HasKey(e => e.IdCategoria).HasName("PRIMARY");
+            entity.HasKey(e => e.IdInventario).HasName("PRIMARY");
 
             entity.ToTable("inventario");
 
-            entity.Property(e => e.IdCategoria)
+            entity.Property(e => e.IdInventario)
                 .HasColumnType("int(11)")
-                .HasColumnName("id_categoria");
+                .HasColumnName("id_Inventario");
             entity.Property(e => e.CantidadDisponible)
                 .HasColumnType("int(11)")
                 .HasColumnName("cantidad_disponible");
@@ -489,7 +489,7 @@ public partial class ProyectoFinalContext : DbContext
 
         modelBuilder.Entity<Producto>(entity =>
         {
-            entity.HasKey(e => new { e.IdProducto, e.CategoriasIdCategoria, e.InventarioIdCategoria, e.ProveedorIdProveedor })
+            entity.HasKey(e => new { e.IdProducto, e.CategoriasIdCategoria, e.InventarioIdInventario, e.ProveedorIdProveedor })
                 .HasName("PRIMARY")
                 .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0 });
 
@@ -499,7 +499,7 @@ public partial class ProyectoFinalContext : DbContext
 
             entity.HasIndex(e => e.CategoriasIdCategoria, "fk_productos_categorias1_idx");
 
-            entity.HasIndex(e => e.InventarioIdCategoria, "fk_productos_inventario1_idx");
+            entity.HasIndex(e => e.InventarioIdInventario, "fk_productos_inventario1_idx");
 
             entity.Property(e => e.IdProducto)
                 .ValueGeneratedOnAdd()
@@ -508,9 +508,9 @@ public partial class ProyectoFinalContext : DbContext
             entity.Property(e => e.CategoriasIdCategoria)
                 .HasColumnType("int(11)")
                 .HasColumnName("categorias_id_categoria");
-            entity.Property(e => e.InventarioIdCategoria)
+            entity.Property(e => e.InventarioIdInventario)
                 .HasColumnType("int(11)")
-                .HasColumnName("inventario_id_categoria");
+                .HasColumnName("inventario_id_Inventario");
             entity.Property(e => e.ProveedorIdProveedor)
                 .HasColumnType("int(11)")
                 .HasColumnName("Proveedor_id_Proveedor");
@@ -534,8 +534,8 @@ public partial class ProyectoFinalContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_productos_categorias1");
 
-            entity.HasOne(d => d.InventarioIdCategoriaNavigation).WithMany(p => p.Productos)
-                .HasForeignKey(d => d.InventarioIdCategoria)
+            entity.HasOne(d => d.InventarioIdInventarioNavigation).WithMany(p => p.Productos)
+                .HasForeignKey(d => d.InventarioIdInventario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_productos_inventario1");
 

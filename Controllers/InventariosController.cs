@@ -33,7 +33,7 @@ namespace patyy.Controllers
             }
 
             var inventario = await _context.Inventarios
-                .FirstOrDefaultAsync(m => m.IdCategoria == id);
+                .FirstOrDefaultAsync(m => m.IdInventario == id);
             if (inventario == null)
             {
                 return NotFound();
@@ -87,7 +87,7 @@ namespace patyy.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdCategoria,CantidadDisponible,NombreProducto")] Inventario inventario)
         {
-            if (id != inventario.IdCategoria)
+            if (id != inventario.IdInventario)
             {
                 return NotFound();
             }
@@ -101,7 +101,7 @@ namespace patyy.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!InventarioExists(inventario.IdCategoria))
+                    if (!InventarioExists(inventario.IdInventario))
                     {
                         return NotFound();
                     }
@@ -124,7 +124,7 @@ namespace patyy.Controllers
             }
 
             var inventario = await _context.Inventarios
-                .FirstOrDefaultAsync(m => m.IdCategoria == id);
+                .FirstOrDefaultAsync(m => m.IdInventario == id);
             if (inventario == null)
             {
                 return NotFound();
@@ -150,7 +150,7 @@ namespace patyy.Controllers
 
         private bool InventarioExists(int id)
         {
-            return _context.Inventarios.Any(e => e.IdCategoria == id);
+            return _context.Inventarios.Any(e => e.IdInventario == id);
         }
     }
 }

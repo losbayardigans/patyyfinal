@@ -20,7 +20,7 @@ public partial class Producto
 
     public int CategoriasIdCategoria { get; set; }
 
-    public int InventarioIdCategoria { get; set; }
+    public int InventarioIdInventario { get; set; }
 
     public int ProveedorIdProveedor { get; set; }
 
@@ -28,7 +28,7 @@ public partial class Producto
 
     public virtual Categoria CategoriasIdCategoriaNavigation { get; set; } = null!;
 
-    public virtual Inventario InventarioIdCategoriaNavigation { get; set; } = null!;
+    public virtual Inventario InventarioIdInventarioNavigation { get; set; } = null!;
 
     public virtual ICollection<PedidosHasProducto> PedidosHasProductos { get; set; } = new List<PedidosHasProducto>();
 

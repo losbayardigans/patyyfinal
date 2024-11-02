@@ -5,7 +5,7 @@ namespace patyy.Models;
 
 public partial class Inventario
 {
-    public int IdCategoria { get; set; }
+    public int IdInventario { get; set; }
 
     public int? CantidadDisponible { get; set; }
 

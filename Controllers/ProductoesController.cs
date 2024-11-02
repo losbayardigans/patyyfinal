@@ -20,7 +20,7 @@ namespace patyy.Controllers
         {
             var productos = _context.Productos
                 .Include(p => p.CategoriasIdCategoriaNavigation)
-                .Include(p => p.InventarioIdCategoriaNavigation)
+                .Include(p => p.InventarioIdInventarioNavigation)
                 .Include(p => p.ProveedorIdProveedorNavigation);
             return View(await productos.ToListAsync());
         }
@@ -29,7 +29,7 @@ namespace patyy.Controllers
         {
             var productos = _context.Productos
                  .Include(p => p.CategoriasIdCategoriaNavigation)
-                 .Include(p => p.InventarioIdCategoriaNavigation)
+                 .Include(p => p.InventarioIdInventarioNavigation)
                  .Include(p => p.ProveedorIdProveedorNavigation);
             return View(await productos.ToListAsync());
         }
@@ -45,7 +45,7 @@ namespace patyy.Controllers
 
             var producto = await _context.Productos
                 .Include(p => p.CategoriasIdCategoriaNavigation)
-                .Include(p => p.InventarioIdCategoriaNavigation)
+                .Include(p => p.InventarioIdInventarioNavigation)
                 .Include(p => p.ProveedorIdProveedorNavigation)
                 .FirstOrDefaultAsync(m => m.IdProducto == id);
 
@@ -62,7 +62,7 @@ namespace patyy.Controllers
         {
             {
                 ViewData["CategoriasIdCategoria"] = new SelectList(_context.Categorias, "IdCategoria", "IdCategoria");
-                ViewData["InventarioIdCategoria"] = new SelectList(_context.Inventarios, "IdCategoria", "IdCategoria");
+                ViewData["InventarioIdInventario"] = new SelectList(_context.Inventarios, "IdInventario", "IdInventario");
                 ViewData["ProveedorIdProveedor"] = new SelectList(_context.Proveedors, "IdProveedor", "IdProveedor");
                 return View();
             }
@@ -90,7 +90,7 @@ namespace patyy.Controllers
 
             // Si llegamos aquí, algo falló; vuelve a mostrar el formulario
             ViewData["CategoriasIdCategoria"] = new SelectList(_context.Categorias, "IdCategoria", "NombreCategoria", producto.CategoriasIdCategoria);
-            ViewData["InventarioIdCategoria"] = new SelectList(_context.Inventarios, "IdCategoria", "IdCategoria", producto.InventarioIdCategoria);
+            ViewData["InventarioIdInventario"] = new SelectList(_context.Inventarios, "IdInventario", "IdInventario", producto.InventarioIdInventario);
             ViewData["ProveedorIdProveedor"] = new SelectList(_context.Proveedors, "IdProveedor", "IdProveedor", producto.ProveedorIdProveedor);
             return View(producto);
         }
@@ -115,7 +115,7 @@ namespace patyy.Controllers
             }
 
             ViewData["CategoriasIdCategoria"] = new SelectList(_context.Categorias, "IdCategoria", "IdCategoria", producto.CategoriasIdCategoria);
-            ViewData["InventarioIdCategoria"] = new SelectList(_context.Inventarios, "IdCategoria", "IdCategoria", producto.InventarioIdCategoria);
+            ViewData["InventarioIdInventario"] = new SelectList(_context.Inventarios, "IdInventario", "IdInventario", producto.InventarioIdInventario);
             ViewData["ProveedorIdProveedor"] = new SelectList(_context.Proveedors, "IdProveedor", "IdProveedor", producto.ProveedorIdProveedor);
             return View(producto);
         }
@@ -152,7 +152,7 @@ namespace patyy.Controllers
             }
 
             ViewData["CategoriasIdCategoria"] = new SelectList(_context.Categorias, "IdCategoria", "IdCategoria", producto.CategoriasIdCategoria);
-            ViewData["InventarioIdCategoria"] = new SelectList(_context.Inventarios, "IdCategoria", "IdCategoria", producto.InventarioIdCategoria);
+            ViewData["InventarioIdInventario"] = new SelectList(_context.Inventarios, "IdInventario", "IdInventario", producto.InventarioIdInventario);
             ViewData["ProveedorIdProveedor"] = new SelectList(_context.Proveedors, "IdProveedor", "IdProveedor", producto.ProveedorIdProveedor);
             return View(producto);
         }
@@ -167,7 +167,7 @@ namespace patyy.Controllers
 
             var producto = await _context.Productos
                 .Include(p => p.CategoriasIdCategoriaNavigation)
-                .Include(p => p.InventarioIdCategoriaNavigation)
+                .Include(p => p.InventarioIdInventarioNavigation)
                 .Include(p => p.ProveedorIdProveedorNavigation)
                 .FirstOrDefaultAsync(m => m.IdProducto == id);
 
