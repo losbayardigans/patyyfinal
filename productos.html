@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Online</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .categorias-dropdown {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .dropdown-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            min-width: 150px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+            .dropdown-content div {
+                padding: 10px;
+                cursor: pointer;
+            }
+
+                .dropdown-content div:hover {
+                    background-color: #f1f1f1;
+                }
+
+        .productos-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .producto {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            width: calc(33.333% - 20px);
+            text-align: center;
+            background-color: white;
+        }
+
+            .producto img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 5px;
+            }
+
+        .agregar-carrito {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            .agregar-carrito:hover {
+                background-color: #218838;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Productos</h1>
+
+        <div class="categorias-dropdown">
+            <button class="dropdown-button">Categoría</button>
+            <div class="dropdown-content">
+                <div data-categoria="todas">Todas</div>
+                <div data-categoria="comestibles">Comestibles</div>
+                <div data-categoria="bebestibles">Bebestibles</div>
+                <div data-categoria="alcohol">Alcohol</div>
+                
+            </div>
+        </div>
+
+        <div class="productos-container">
+        
+            <div class="producto" data-categoria="comestibles">
+                <img src="imagenes/producto1.jpg" alt="Nombre del Producto 1" />
+                <h3>Nombre del Producto 1</h3>
+                <p>Descripción corta del producto 1.</p>
+                <button class="agregar-carrito" data-id="1" data-precio="1000">Agregar al Carrito</button>
+            </div>
+            
+            <div class="producto" data-categoria="bebestibles">
+                <img src="imagenes/producto2.jpg" alt="Nombre del Producto 2" />
+                <h3>Nombre del Producto 2</h3>
+                <p>Descripción corta del producto 2.</p>
+                <button class="agregar-carrito">Agregar al Carrito</button>
+            </div>
+           
+            <div class="producto" data-categoria="alcohol">
+                <img src="imagenes/producto3.jpg" alt="Nombre del Producto 3" />
+                <h3>Nombre del Producto 3</h3>
+                <p>Descripción corta del producto 3.</p>
+                <button class="agregar-carrito">Agregar al Carrito</button>
+            </div>
+          
+        </div>
+    </div>
+
+    <script>
+        //esto es para cuando exista el metodo de agregar al carro 
+        const botonesAgregar = document.querySelectorAll('.agregar-carrito');
+        botonesAgregar.forEach(boton => {
+            boton.addEventListener('click', function () {
+                const productoId = this.getAttribute('data-id');
+                const precio = this.getAttribute('data-precio');
+
+                
+                fetch('/Carro/AddToCart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId: productoId, price: precio, quantity: 1 })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Producto agregado al carrito!');
+                        } else {
+                            alert('Error al agregar el producto al carrito.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al agregar el producto al carrito.');
+                    });
+            });
+        });
+
+
+      
+        const dropdownButton = document.querySelector('.dropdown-button');
+        const dropdownContent = document.querySelector('.dropdown-content');
+
+        dropdownButton.addEventListener('click', function () {
+            dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+        });
+
+
+        const categorias = document.querySelectorAll('.dropdown-content div');
+        categorias.forEach(categoria => {
+            categoria.addEventListener('click', function () {
+                const categoriaSeleccionada = this.getAttribute('data-categoria');
+                const productos = document.querySelectorAll('.producto');
+
+                productos.forEach(producto => {
+                    if (categoriaSeleccionada === 'todas' || producto.getAttribute('data-categoria') === categoriaSeleccionada) {
+                        producto.style.display = 'block'; 
+                    } else {
+                        producto.style.display = 'none'; 
+                    }
+                });
+
+                
+                dropdownContent.style.display = 'none';
+            });
+        });
+
+        
+        window.addEventListener('click', function (event) {
+            if (!event.target.matches('.dropdown-button')) {
+                dropdownContent.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
