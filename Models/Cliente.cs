@@ -13,7 +13,7 @@ public partial class Cliente
 
     public string? Correo { get; set; }
 
-    public string Contraseña { get; set; } = null!;
+    public string? Contraseña { get; set; }
 
     public string? Direccion { get; set; }
 

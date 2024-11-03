@@ -15,7 +15,7 @@ public partial class PedidosHasProducto
 
     public int ProductosCategoriasIdCategoria { get; set; }
 
-    public int ProductosInventarioIdCategoria { get; set; }
+    public int ProductosInventarioIdInventario { get; set; }
 
     public int ProductosProveedorIdProveedor { get; set; }
 
@@ -26,6 +26,5 @@ public partial class PedidosHasProducto
     public string? PedidosHasProductoscol { get; set; }
 
     public virtual Pedido Pedido { get; set; } = null!;
-
     public virtual Producto Producto { get; set; } = null!;
 }

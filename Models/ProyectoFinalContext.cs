@@ -122,7 +122,9 @@ public partial class ProyectoFinalContext : DbContext
             entity.Property(e => e.Precio)
                 .HasColumnType("int(11)")
                 .HasColumnName("precio");
-            entity.Property(e => e.Total).HasColumnType("int(11)");
+            entity.Property(e => e.Total)
+                .HasColumnType("int(11)")
+                .HasColumnName("total");
         });
 
         modelBuilder.Entity<Categoria>(entity =>
@@ -435,7 +437,7 @@ public partial class ProyectoFinalContext : DbContext
 
         modelBuilder.Entity<PedidosHasProducto>(entity =>
         {
-            entity.HasKey(e => new { e.PedidosIdPedido, e.PedidosProductosIdProducto, e.PedidosClienteIdCliente, e.ProductosIdProducto, e.ProductosCategoriasIdCategoria, e.ProductosInventarioIdCategoria, e.ProductosProveedorIdProveedor })
+            entity.HasKey(e => new { e.PedidosIdPedido, e.PedidosProductosIdProducto, e.PedidosClienteIdCliente, e.ProductosIdProducto, e.ProductosCategoriasIdCategoria, e.ProductosInventarioIdInventario, e.ProductosProveedorIdProveedor })
                 .HasName("PRIMARY")
                 .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0, 0, 0, 0 });
 
@@ -443,7 +445,7 @@ public partial class ProyectoFinalContext : DbContext
 
             entity.HasIndex(e => new { e.PedidosIdPedido, e.PedidosProductosIdProducto, e.PedidosClienteIdCliente }, "fk_pedidos_has_productos_pedidos1_idx");
 
-            entity.HasIndex(e => new { e.ProductosIdProducto, e.ProductosCategoriasIdCategoria, e.ProductosInventarioIdCategoria, e.ProductosProveedorIdProveedor }, "fk_pedidos_has_productos_productos1_idx");
+            entity.HasIndex(e => new { e.ProductosIdProducto, e.ProductosCategoriasIdCategoria, e.ProductosInventarioIdInventario, e.ProductosProveedorIdProveedor }, "fk_pedidos_has_productos_productos1_idx");
 
             entity.Property(e => e.PedidosIdPedido)
                 .HasColumnType("int(11)")
@@ -460,9 +462,9 @@ public partial class ProyectoFinalContext : DbContext
             entity.Property(e => e.ProductosCategoriasIdCategoria)
                 .HasColumnType("int(11)")
                 .HasColumnName("productos_categorias_id_categoria");
-            entity.Property(e => e.ProductosInventarioIdCategoria)
+            entity.Property(e => e.ProductosInventarioIdInventario)
                 .HasColumnType("int(11)")
-                .HasColumnName("productos_inventario_id_categoria");
+                .HasColumnName("productos_inventario_id_Inventario");
             entity.Property(e => e.ProductosProveedorIdProveedor)
                 .HasColumnType("int(11)")
                 .HasColumnName("productos_Proveedor_id_Proveedor");
@@ -480,16 +482,11 @@ public partial class ProyectoFinalContext : DbContext
                 .HasForeignKey(d => new { d.PedidosIdPedido, d.PedidosProductosIdProducto, d.PedidosClienteIdCliente })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_pedidos_has_productos_pedidos1");
-
-            entity.HasOne(d => d.Producto).WithMany(p => p.PedidosHasProductos)
-                .HasForeignKey(d => new { d.ProductosIdProducto, d.ProductosCategoriasIdCategoria, d.ProductosInventarioIdCategoria, d.ProductosProveedorIdProveedor })
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_pedidos_has_productos_productos1");
         });
 
         modelBuilder.Entity<Producto>(entity =>
         {
-            entity.HasKey(e => new { e.IdProducto, e.CategoriasIdCategoria, e.InventarioIdInventario, e.ProveedorIdProveedor })
+            entity.HasKey(e => new { e.IdProducto, e.CategoriasIdCategoria, e.ProveedorIdProveedor, e.InventarioIdInventario })
                 .HasName("PRIMARY")
                 .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0, 0 });
 
@@ -508,12 +505,12 @@ public partial class ProyectoFinalContext : DbContext
             entity.Property(e => e.CategoriasIdCategoria)
                 .HasColumnType("int(11)")
                 .HasColumnName("categorias_id_categoria");
-            entity.Property(e => e.InventarioIdInventario)
-                .HasColumnType("int(11)")
-                .HasColumnName("inventario_id_Inventario");
             entity.Property(e => e.ProveedorIdProveedor)
                 .HasColumnType("int(11)")
                 .HasColumnName("Proveedor_id_Proveedor");
+            entity.Property(e => e.InventarioIdInventario)
+                .HasColumnType("int(11)")
+                .HasColumnName("inventario_id_Inventario");
             entity.Property(e => e.CantidadProductos)
                 .HasMaxLength(45)
                 .HasColumnName("cantidad_productos");
@@ -523,7 +520,7 @@ public partial class ProyectoFinalContext : DbContext
             entity.Property(e => e.EstadoProducto)
                 .HasColumnType("enum('disponible','agotado')")
                 .HasColumnName("estado_producto");
-            entity.Property(e => e.ImageUrl).HasMaxLength(100);
+            entity.Property(e => e.ImageUrl).HasMaxLength(45);
             entity.Property(e => e.Nombre).HasMaxLength(45);
             entity.Property(e => e.Precio)
                 .HasColumnType("int(11)")
