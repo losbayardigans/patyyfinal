@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-11-2024 a las 04:57:17
+-- Tiempo de generación: 05-11-2024 a las 02:43:51
 -- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.0.30
+-- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -50,7 +50,7 @@ CREATE TABLE `carro` (
   `precio` int(11) DEFAULT NULL,
   `pedidos_id_pedido` int(11) NOT NULL,
   `pedidos_productos_id_producto` int(11) NOT NULL,
-  `Total` int(11) NOT NULL
+  `total` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 -- --------------------------------------------------------
@@ -72,7 +72,9 @@ CREATE TABLE `categorias` (
 --
 
 INSERT INTO `categorias` (`id_categoria`, `descripcion`, `nombre_categoria`, `cantidad_categorias`, `estado_categoria`) VALUES
-(1, 'safds', '2', 1, NULL);
+(1, 'todo tipo de bebestible', 'bebestible', 121, 'activa'),
+(3, 'todo tipo de comestible', 'snaks', 121, 'activa'),
+(4, 'todo tipo de alcohol', 'alcohol', 121, 'activa');
 
 -- --------------------------------------------------------
 
@@ -85,7 +87,7 @@ CREATE TABLE `cliente` (
   `nombre` varchar(45) DEFAULT NULL,
   `apellido` varchar(45) DEFAULT NULL,
   `correo` varchar(45) DEFAULT NULL,
-  `contraseña` varchar(45) NOT NULL,
+  `contraseña` varchar(45) DEFAULT NULL,
   `direccion` varchar(45) DEFAULT NULL,
   `telefono` varchar(45) DEFAULT NULL,
   `fecha_registro` datetime DEFAULT NULL,
@@ -161,20 +163,10 @@ CREATE TABLE `estado_has_pedidos` (
 --
 
 CREATE TABLE `inventario` (
-  `id_inventario` int(11) NOT NULL,
+  `id_Inventario` int(11) NOT NULL,
   `cantidad_disponible` int(11) DEFAULT NULL,
   `nombre_producto` varchar(45) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Volcado de datos para la tabla `inventario`
---
-
-INSERT INTO `inventario` (`id_inventario`, `cantidad_disponible`, `nombre_producto`) VALUES
-(2, 2, 'aeae'),
-(3, 2, '2'),
-(4, 2, '2'),
-(5, 5, 'papitas');
 
 -- --------------------------------------------------------
 
@@ -221,7 +213,7 @@ CREATE TABLE `pedidos_has_productos` (
   `pedidos_cliente_id_cliente` int(11) NOT NULL,
   `productos_id_producto` int(11) NOT NULL,
   `productos_categorias_id_categoria` int(11) NOT NULL,
-  `productos_inventario_id_inventario` int(11) NOT NULL,
+  `productos_inventario_id_Inventario` int(11) NOT NULL,
   `productos_Proveedor_id_Proveedor` int(11) NOT NULL,
   `cantidad` int(11) DEFAULT NULL,
   `precio` int(11) DEFAULT NULL,
@@ -236,23 +228,16 @@ CREATE TABLE `pedidos_has_productos` (
 
 CREATE TABLE `productos` (
   `id_producto` int(11) NOT NULL,
-  `Nombre` varchar(45) NOT NULL,
-  `ImageUrl` varchar(100) DEFAULT NULL,
+  `Nombre` varchar(45) DEFAULT NULL,
+  `ImageUrl` varchar(45) DEFAULT NULL,
   `descripcion` varchar(45) DEFAULT NULL,
-  `cantidad_productos` varchar(45) DEFAULT NULL,
+  `cantidad_productos` int(11) DEFAULT NULL,
   `precio` int(11) DEFAULT NULL,
   `categorias_id_categoria` int(11) NOT NULL,
-  `inventario_id_inventario` int(11) NOT NULL,
   `Proveedor_id_Proveedor` int(11) NOT NULL,
-  `estado_producto` enum('disponible','agotado') DEFAULT NULL
+  `estado_producto` enum('disponible','agotado') DEFAULT NULL,
+  `inventario_id_Inventario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Volcado de datos para la tabla `productos`
---
-
-INSERT INTO `productos` (`id_producto`, `Nombre`, `ImageUrl`, `descripcion`, `cantidad_productos`, `precio`, `categorias_id_categoria`, `inventario_id_inventario`, `Proveedor_id_Proveedor`, `estado_producto`) VALUES
-(1, 'Producto Ejemplo', '/img/snacks.jpg', 'Descripción del producto', '100', 30, 1, 2, 1, 'disponible');
 
 -- --------------------------------------------------------
 
@@ -270,24 +255,6 @@ CREATE TABLE `proveedor` (
   `fecha_proveedor` datetime DEFAULT NULL,
   `estado_proveedor` enum('activo','inactivo') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Volcado de datos para la tabla `proveedor`
---
-
-INSERT INTO `proveedor` (`id_Proveedor`, `Nombre`, `Email`, `Contacto`, `Direccion`, `Telefono`, `fecha_proveedor`, `estado_proveedor`) VALUES
-(1, 'miguel', 'arcangel', '123', 'arica', '942333535', '2024-11-02 00:45:00', 'activo');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `__efmigrationshistory`
---
-
-CREATE TABLE `__efmigrationshistory` (
-  `MigrationId` varchar(150) NOT NULL,
-  `ProductVersion` varchar(32) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Índices para tablas volcadas
@@ -352,7 +319,7 @@ ALTER TABLE `estado_has_pedidos`
 -- Indices de la tabla `inventario`
 --
 ALTER TABLE `inventario`
-  ADD PRIMARY KEY (`id_inventario`);
+  ADD PRIMARY KEY (`id_Inventario`);
 
 --
 -- Indices de la tabla `pago`
@@ -365,37 +332,31 @@ ALTER TABLE `pago`
 -- Indices de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  ADD PRIMARY KEY (`id_pedido`),
+  ADD PRIMARY KEY (`id_pedido`,`productos_id_producto`,`cliente_id_cliente`),
   ADD KEY `fk_pedidos_cliente1_idx` (`cliente_id_cliente`);
 
 --
 -- Indices de la tabla `pedidos_has_productos`
 --
 ALTER TABLE `pedidos_has_productos`
-  ADD PRIMARY KEY (`pedidos_id_pedido`,`pedidos_productos_id_producto`,`pedidos_cliente_id_cliente`,`productos_id_producto`,`productos_categorias_id_categoria`,`productos_inventario_id_inventario`,`productos_Proveedor_id_Proveedor`),
-  ADD KEY `fk_pedidos_has_productos_productos1_idx` (`productos_id_producto`,`productos_categorias_id_categoria`,`productos_inventario_id_inventario`,`productos_Proveedor_id_Proveedor`),
-  ADD KEY `fk_pedidos_has_productos_pedidos1_idx` (`pedidos_id_pedido`,`pedidos_productos_id_producto`,`pedidos_cliente_id_cliente`);
+  ADD PRIMARY KEY (`pedidos_id_pedido`,`pedidos_productos_id_producto`,`pedidos_cliente_id_cliente`,`productos_id_producto`,`productos_categorias_id_categoria`,`productos_inventario_id_Inventario`,`productos_Proveedor_id_Proveedor`),
+  ADD KEY `fk_pedidos_has_productos_pedidos1_idx` (`pedidos_id_pedido`,`pedidos_productos_id_producto`,`pedidos_cliente_id_cliente`),
+  ADD KEY `fk_pedidos_has_productos_productos1_idx` (`productos_id_producto`,`productos_categorias_id_categoria`,`productos_inventario_id_Inventario`,`productos_Proveedor_id_Proveedor`);
 
 --
 -- Indices de la tabla `productos`
 --
 ALTER TABLE `productos`
-  ADD PRIMARY KEY (`id_producto`,`categorias_id_categoria`,`inventario_id_inventario`,`Proveedor_id_Proveedor`),
+  ADD PRIMARY KEY (`id_producto`,`categorias_id_categoria`,`Proveedor_id_Proveedor`,`inventario_id_Inventario`),
   ADD KEY `fk_productos_categorias1_idx` (`categorias_id_categoria`),
-  ADD KEY `fk_productos_inventario1_idx` (`inventario_id_inventario`),
-  ADD KEY `fk_productos_Proveedor1_idx` (`Proveedor_id_Proveedor`);
+  ADD KEY `fk_productos_Proveedor1_idx` (`Proveedor_id_Proveedor`),
+  ADD KEY `fk_productos_inventario1_idx` (`inventario_id_Inventario`);
 
 --
 -- Indices de la tabla `proveedor`
 --
 ALTER TABLE `proveedor`
   ADD PRIMARY KEY (`id_Proveedor`);
-
---
--- Indices de la tabla `__efmigrationshistory`
---
-ALTER TABLE `__efmigrationshistory`
-  ADD PRIMARY KEY (`MigrationId`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -417,7 +378,7 @@ ALTER TABLE `carro`
 -- AUTO_INCREMENT de la tabla `categorias`
 --
 ALTER TABLE `categorias`
-  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `cliente`
@@ -447,7 +408,7 @@ ALTER TABLE `estado_has_pago`
 -- AUTO_INCREMENT de la tabla `inventario`
 --
 ALTER TABLE `inventario`
-  MODIFY `id_inventario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_Inventario` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `pago`
@@ -459,13 +420,13 @@ ALTER TABLE `pago`
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedor`
 --
 ALTER TABLE `proveedor`
-  MODIFY `id_Proveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_Proveedor` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Restricciones para tablas volcadas
@@ -519,7 +480,8 @@ ALTER TABLE `pedidos`
 -- Filtros para la tabla `pedidos_has_productos`
 --
 ALTER TABLE `pedidos_has_productos`
-  ADD CONSTRAINT `fk_pedidos_has_productos_pedidos1` FOREIGN KEY (`pedidos_id_pedido`,`pedidos_productos_id_producto`,`pedidos_cliente_id_cliente`) REFERENCES `pedidos` (`id_pedido`, `productos_id_producto`, `cliente_id_cliente`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_pedidos_has_productos_pedidos1` FOREIGN KEY (`pedidos_id_pedido`,`pedidos_productos_id_producto`,`pedidos_cliente_id_cliente`) REFERENCES `pedidos` (`id_pedido`, `productos_id_producto`, `cliente_id_cliente`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_pedidos_has_productos_productos1` FOREIGN KEY (`productos_id_producto`,`productos_categorias_id_categoria`,`productos_Proveedor_id_Proveedor`) REFERENCES `productos` (`id_producto`, `categorias_id_categoria`, `Proveedor_id_Proveedor`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Filtros para la tabla `productos`
@@ -527,7 +489,7 @@ ALTER TABLE `pedidos_has_productos`
 ALTER TABLE `productos`
   ADD CONSTRAINT `fk_productos_Proveedor1` FOREIGN KEY (`Proveedor_id_Proveedor`) REFERENCES `proveedor` (`id_Proveedor`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_productos_categorias1` FOREIGN KEY (`categorias_id_categoria`) REFERENCES `categorias` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_productos_inventario1` FOREIGN KEY (`inventario_id_inventario`) REFERENCES `inventario` (`id_inventario`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_productos_inventario1` FOREIGN KEY (`inventario_id_Inventario`) REFERENCES `inventario` (`id_Inventario`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

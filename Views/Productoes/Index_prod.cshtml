@@ -1,5 +1,39 @@
 ﻿@model IEnumerable<patyy.Models.Producto>
+
 <style>
+    /* Estilos para la vista */
+    .categorias-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
+
+        .dropdown-content div {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+            .dropdown-content div:hover {
+                background-color: #ddd;
+            }
+
     .carta {
         border: none;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -31,15 +65,18 @@
     }
 
     .btn-custom {
-        background-color: #007bff;
+        background-color: #28a745;
         color: white;
         border: none;
         border-radius: 20px;
-        padding: 5px 10px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
         .btn-custom:hover {
-            background-color: #0056b3;
+            background-color: #218838;
+            transform: scale(1.05);
         }
 
     .container {
@@ -48,29 +85,95 @@
     }
 </style>
 
+<h1>Productos</h1>
+
+<!-- Menú desplegable de categorías -->
+<div class="categorias-dropdown">
+    <button class="dropdown-button">Categoría</button>
+    <div class="dropdown-content" id="dropdown-categorias">
+        <div data-categoria="todas">Todas</div>
+    </div>
+</div>
+
 <main class="col-md-9 col-lg-10 pt-4 container">
     <div class="row">
-        @foreach (var Producto in Model)
+        @if (Model != null && Model.Any())
         {
-            <div class="col-6 col-md-4 col-lg-3 mb-4">
-                <div class="carta h-100 text-center">
-                    <div class="carta-body">
-                        <div class="imagen-placeholder mb-3">
-                            <img src="@Url.Content(Producto.ImageUrl ?? "~/img/snacks.jpg")" alt="@Producto.Nombre" class="img-fluid" style="height: 100%; width: 100%; object-fit: cover; border-radius: 8px;" />
-                        </div>
-                        <h6 class="carta-title">@Producto.Nombre</h6>
-                        <p class="carta-text">@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", Producto.CantidadProductos != null ? Convert.ToInt32(Producto.CantidadProductos) : 0)</p>
-                        <p class="carta-text">@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0}", Producto.Descripcion ?? "Sin descripción")</p>
-                        <p class="carta-text">@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", Producto.Precio != null ? Producto.Precio : 0)</p>
+            foreach (var producto in Model)
+            {
+                <div class="col-6 col-md-4 col-lg-3 mb-4 producto" data-categoria="@producto.CategoriasIdCategoria">
+                    <div class="carta h-100 text-center">
+                        <div class="carta-body">
+                            <div class="imagen-placeholder mb-3">
+                                <img src="@Url.Content(producto.ImageUrl ?? "~/img/snacks.jpg")" alt="@producto.Nombre" class="img-fluid" style="height: 100%; width: 100%; object-fit: cover; border-radius: 8px;" />
+                            </div>
+                            <h6 class="carta-title">@producto.Nombre</h6>
+                            <p class="carta-text">@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", producto.CantidadProductos ?? 0)</p>
+                            <p class="carta-text">@producto.Descripcion ?? "Sin descripción"</p>
+                            <p class="carta-text">@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", producto.Precio ?? 0)</p>
 
-                        <!-- Formulario para añadir al carro -->
-                        <form asp-controller="Carroes" asp-action="carrito" method="post">
-                            <input type="hidden" name="productoId" value="@Producto.IdProducto" />
-                            <button type="submit" class="btn btn-custom">Añadir al carro</button>
-                        </form>
+                            <!-- Formulario para añadir al carro -->
+                            <form asp-controller="Carroes" asp-action="carrito" method="post">
+                                <input type="hidden" name="productoId" value="@producto.IdProducto" />
+                                <button type="submit" class="btn btn-custom">Añadir al carro</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
+        }
+        else
+        {
+            <div>No hay productos disponibles</div>
         }
     </div>
 </main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Cargar categorías desde el controlador al iniciar la página
+        fetch('/Productoes/boton')
+            .then(response => response.json())
+            .then(categorias => {
+                const dropdownCategorias = document.getElementById('dropdown-categorias');
+
+                // Añadir cada categoría al menú desplegable
+                categorias.forEach(categoria => {
+                    const categoriaDiv = document.createElement('div');
+                    categoriaDiv.setAttribute('data-categoria', categoria.idCategoria);
+                    categoriaDiv.innerText = categoria.nombreCategoria; // Ajusta según el nombre de tu campo en la base de datos
+                    dropdownCategorias.appendChild(categoriaDiv);
+
+                    // Evento para el filtro por categoría
+                    categoriaDiv.addEventListener('click', function () {
+                        const categoriaSeleccionada = this.getAttribute('data-categoria');
+                        filtrarProductosPorCategoria(categoriaSeleccionada);
+                    });
+                });
+            })
+            .catch(error => console.error('Error cargando categorías:', error));
+    });
+
+    // Función para mostrar/ocultar productos por categoría
+    function filtrarProductosPorCategoria(categoriaSeleccionada) {
+        const productos = document.querySelectorAll('.producto');
+        productos.forEach(producto => {
+            const productoCategoria = producto.getAttribute('data-categoria');
+            producto.style.display = (categoriaSeleccionada === 'todas' || productoCategoria === categoriaSeleccionada) ? 'block' : 'none';
+        });
+    }
+
+    // Mostrar/ocultar el menú desplegable
+    const dropdownButton = document.querySelector('.dropdown-button');
+    const dropdownContent = document.querySelector('.dropdown-content');
+
+    dropdownButton.addEventListener('click', function () {
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+    });
+
+    window.addEventListener('click', function (event) {
+        if (!event.target.closest('.dropdown-button') && !event.target.closest('.dropdown-content')) {
+            dropdownContent.style.display = 'none';
+        }
+    });
+</script>

@@ -13,7 +13,7 @@ public partial class Producto
 
     public string? Descripcion { get; set; }
 
-    public string? CantidadProductos { get; set; }
+    public int? CantidadProductos { get; set; }
 
     public int? Precio { get; set; }
 

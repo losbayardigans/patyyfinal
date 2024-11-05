@@ -512,7 +512,7 @@ public partial class ProyectoFinalContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("inventario_id_Inventario");
             entity.Property(e => e.CantidadProductos)
-                .HasMaxLength(45)
+                .HasColumnType("int(11)")
                 .HasColumnName("cantidad_productos");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(45)

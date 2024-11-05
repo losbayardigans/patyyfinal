@@ -16,6 +16,14 @@ namespace patyy.Controllers
             _context = context;
         }
 
+        // Acción para mostrar el botón de categorías
+        public async Task<IActionResult> boton()
+        {
+            var categorias = await _context.Categorias.ToListAsync();
+            return Json(categorias);
+        }
+
+
         public async Task<IActionResult> Index_prod()
         {
             var productos = _context.Productos

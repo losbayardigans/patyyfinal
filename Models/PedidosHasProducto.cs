@@ -26,5 +26,6 @@ public partial class PedidosHasProducto
     public string? PedidosHasProductoscol { get; set; }
 
     public virtual Pedido Pedido { get; set; } = null!;
+
     public virtual Producto Producto { get; set; } = null!;
 }
