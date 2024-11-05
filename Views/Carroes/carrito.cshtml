@@ -10,7 +10,7 @@
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
-                <th>Producto ID</th>
+               
                 <th>Precio Unitario</th>
                 <th>Cantidad</th>
                 <th>Descuento Aplicado (%)</th>
@@ -29,8 +29,8 @@
             {
                 foreach (var item in Model)
                 {
-                    <tr>
-                        <td>@item.PedidosProductosIdProducto</td>
+                    <tr>    
+                  
                         <td>@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", item.Precio)</td>
                         <td>@item.Cantidad</td>
                         <td>@item.DescuentoAplicado %</td>
