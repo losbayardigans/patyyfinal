@@ -22,16 +22,68 @@ namespace patyy.Controllers
             var categorias = await _context.Categorias.ToListAsync();
             return Json(categorias);
         }
+        [HttpPost]
+        public async Task<IActionResult> AgregarAlCarrito(int productoId)
+        {
+            var producto = await _context.Productos
+                .Where(p => p.IdProducto == productoId)
+                .FirstOrDefaultAsync();
+
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            var carrito = HttpContext.Session.GetObjectFromJson<List<Carro>>("Carrito");
+            if (carrito == null)
+            {
+                carrito = new List<Carro>();
+            }
+
+            var itemCarrito = carrito.FirstOrDefault(c => c.PedidosProductosIdProducto == productoId);
+            if (itemCarrito == null)
+            {
+                carrito.Add(new Carro
+                {
+                    PedidosProductosIdProducto = productoId,
+                    Cantidad = 1,
+                    Precio = producto.Precio
+                });
+            }
+            else
+            {
+                itemCarrito.Cantidad++;
+            }
+
+            // Llamamos al método para actualizar el total de cada item en el carrito
+            foreach (var item in carrito)
+            {
+                item.ActualizarTotal();  //deberia actualizar pero algo pasa :C
+            }
+
+            HttpContext.Session.SetObjectAsJson("Carrito", carrito);
+
+            return RedirectToAction("Carrito", "Carroes");  
+        }
+
+
 
 
         public async Task<IActionResult> Index_prod()
         {
-            var productos = _context.Productos
-                .Include(p => p.CategoriasIdCategoriaNavigation)
+            var productos = await _context.Productos
+                 .Include(p => p.CategoriasIdCategoriaNavigation)
                 .Include(p => p.InventarioIdInventarioNavigation)
-                .Include(p => p.ProveedorIdProveedorNavigation);
-            return View(await productos.ToListAsync());
+                .Include(p => p.ProveedorIdProveedorNavigation)
+                .ToListAsync();
+
+            var categorias = await _context.Categorias.ToListAsync();
+            //almacenamos en un data las categorias basicamente para hacer funcionar el todos xd
+            ViewData["Categorias"] = categorias;
+
+            return View(productos);
         }
+
 
         public async Task<IActionResult> Index()
         {
@@ -79,7 +131,7 @@ namespace patyy.Controllers
         // POST: Productoes/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Descripcion,CantidadProductos,CategoriasIdCategoria,InventarioIdCategoria,ProveedorIdProveedor")] Producto producto)
+        public async Task<IActionResult> Create([Bind("Descripcion,CantidadProductos,CategoriasIdCategoria,InventarioIdInventario,ProveedorIdProveedor")] Producto producto)
         {
             if (ModelState.IsValid)
             {
@@ -131,7 +183,7 @@ namespace patyy.Controllers
         // POST: Productoes/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdProducto,Descripcion,CantidadProductos,CategoriasIdCategoria,InventarioIdCategoria,ProveedorIdProveedor")] Producto producto)
+        public async Task<IActionResult> Edit(int id, [Bind("IdProducto,Descripcion,CantidadProductos,CategoriasIdCategoria,InventarioIdInventario,ProveedorIdProveedor")] Producto producto)
         {
             if (id != producto.IdProducto)
             {
@@ -187,7 +239,7 @@ namespace patyy.Controllers
             return View(producto);
         }
 
-        // POST: Productoes/Delete/5
+        // POST: Carroes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

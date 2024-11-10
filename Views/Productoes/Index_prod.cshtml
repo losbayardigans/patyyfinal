@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<patyy.Models.Producto>
 
 <style>
-    /* Estilos para la vista */
+    /* Estilos para el desplegable */
     .categorias-dropdown {
         position: relative;
         display: inline-block;
@@ -30,58 +30,85 @@
             cursor: pointer;
         }
 
+    .producto {
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación de transformación */
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        background-color: white;
+    }
+
+        .producto:hover {
+            transform: scale(1.05); /* Agranda ligeramente el producto */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra al pasar el ratón */
+        }
+
             .dropdown-content div:hover {
                 background-color: #ddd;
             }
 
-    .carta {
-        border: none;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s ease-in-out;
+    .show {
+        display: block;
     }
 
-        .carta:hover {
-            transform: scale(1.05);
-        }
+    .carta {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: space-between;
+    }
+
+    .carta-body {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+    }
 
     .imagen-placeholder {
+        overflow: hidden;
+        height: 200px; /* Ajusta el tamaño de las imágenes */
+    }
+
+    .img-fluid {
+        object-fit: cover;
+        height: 100%;
         width: 100%;
-        height: 120px;
-        background-color: #dee2e6;
-        border-radius: 8px;
     }
 
     .carta-title {
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: bold;
-        margin-top: 10px;
-        color: #343a40;
+        margin: 10px 0;
     }
 
     .carta-text {
-        font-size: 1.2rem;
-        color: #007bff;
-        font-weight: bold;
+        font-size: 1rem;
+        color: #555;
     }
 
-    .btn-custom {
-        background-color: #28a745;
+    .btn-secondary {
+        background-color: #6c757d;
         color: white;
         border: none;
-        border-radius: 20px;
+        border-radius: 4px;
         padding: 10px 20px;
-        font-size: 1rem;
-        transition: background-color 0.3s ease, transform 0.2s ease;
+        cursor: pointer;
     }
 
-        .btn-custom:hover {
-            background-color: #218838;
-            transform: scale(1.05);
+        .btn-secondary:hover {
+            background-color: #5a6268;
         }
 
-    .container {
-        padding-left: 15px;
-        padding-right: 15px;
+    /* Asegura que los productos estén alineados */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px; /* Espaciado entre los productos */
+    }
+
+    .col-6, .col-md-4, .col-lg-3 {
+        display: flex;
+        justify-content: center; /* Centra los productos */
     }
 </style>
 
@@ -89,9 +116,13 @@
 
 <!-- Menú desplegable de categorías -->
 <div class="categorias-dropdown">
-    <button class="dropdown-button">Categoría</button>
+    <button class="dropdown-button" id="dropdownButton">Categoría</button>
     <div class="dropdown-content" id="dropdown-categorias">
         <div data-categoria="todas">Todas</div>
+        @foreach (var categoria in ViewData["Categorias"] as List<patyy.Models.Categoria>)//aca lo llamamos mediante una busqueda  donde llamamos al nombre categoria , podria ser el id pero no cacho 
+        {
+            <div data-categoria="@categoria.IdCategoria">@categoria.NombreCategoria</div>
+        }
     </div>
 </div>
 
@@ -112,15 +143,14 @@
                             <p class="carta-text">@producto.Descripcion ?? "Sin descripción"</p>
                             <p class="carta-text">@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", producto.Precio ?? 0)</p>
 
-                            <!-- Formulario para añadir al carro -->
-                            <form asp-controller="Carroes" asp-action="carrito" method="post">
+                            <!--hacemos un pequeño form en donde se llama al metodo agregar y lo hacemos un post pa que se envie  -->
+                            <form asp-controller="Productoes" asp-action="AgregarAlCarrito" method="post">
                                 <input type="hidden" name="productoId" value="@producto.IdProducto" />
-                                <button type="submit" class="btn btn-custom">Añadir al carro</button>
+                                <button type="submit" class="btn btn-secondary">Añadir al carro</button>
                             </form>
                         </div>
                     </div>
                 </div>
-               
             }
         }
         else
@@ -131,50 +161,32 @@
 </main>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Cargar categorías desde el controlador al iniciar la página
-        fetch('/Productoes/boton')
-            .then(response => response.json())
-            .then(categorias => {
-                const dropdownCategorias = document.getElementById('dropdown-categorias');
-
-                // Añadir cada categoría al menú desplegable
-                categorias.forEach(categoria => {
-                    const categoriaDiv = document.createElement('div');
-                    categoriaDiv.setAttribute('data-categoria', categoria.idCategoria);
-                    categoriaDiv.innerText = categoria.nombreCategoria; // Ajusta según el nombre de tu campo en la base de datos
-                    dropdownCategorias.appendChild(categoriaDiv);
-
-                    // Evento para el filtro por categoría
-                    categoriaDiv.addEventListener('click', function () {
-                        const categoriaSeleccionada = this.getAttribute('data-categoria');
-                        filtrarProductosPorCategoria(categoriaSeleccionada);
-                    });
-                });
-            })
-            .catch(error => console.error('Error cargando categorías:', error));
+    // Mmostramos el despliege del boton !!
+    document.getElementById('dropdownButton').addEventListener('click', function () {
+        var dropdownContent = document.getElementById('dropdown-categorias');
+        dropdownContent.classList.toggle('show');
     });
 
-    // Función para mostrar/ocultar productos por categoría
-    function filtrarProductosPorCategoria(categoriaSeleccionada) {
+    // filtramos todos los tipos 
+    const categoriasDiv = document.querySelectorAll('.dropdown-content div');
+
+    categoriasDiv.forEach(categoria => {
+        categoria.addEventListener('click', function () {
+            const categoriaId = categoria.getAttribute('data-categoria');
+            filterProductsByCategory(categoriaId);
+        });
+    });
+
+    function filterProductsByCategory(categoriaId) {
         const productos = document.querySelectorAll('.producto');
+
         productos.forEach(producto => {
-            const productoCategoria = producto.getAttribute('data-categoria');
-            producto.style.display = (categoriaSeleccionada === 'todas' || productoCategoria === categoriaSeleccionada) ? 'block' : 'none';
+            const productCategory = producto.getAttribute('data-categoria');
+            if (categoriaId === 'todas' || productCategory === categoriaId) {
+                producto.style.display = 'block';  // esto lo muestra xdd 
+            } else {
+                producto.style.display = 'none';  //esto lo que hace es que oculta los productos no seleccionados 
+            }
         });
     }
-
-    // Mostrar/ocultar el menú desplegable
-    const dropdownButton = document.querySelector('.dropdown-button');
-    const dropdownContent = document.querySelector('.dropdown-content');
-
-    dropdownButton.addEventListener('click', function () {
-        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-    });
-
-    window.addEventListener('click', function (event) {
-        if (!event.target.closest('.dropdown-button') && !event.target.closest('.dropdown-content')) {
-            dropdownContent.style.display = 'none';
-        }
-    });
 </script>

@@ -4,54 +4,93 @@
     ViewData["Title"] = "Carrito de Compras";
 }
 
-<h2>@ViewData["Title"]</h2>
+<section class="h-100">
+    <div class="container h-100 py-5">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-10">
 
-<div class="container mt-4">
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-               
-                <th>Precio Unitario</th>
-                <th>Cantidad</th>
-                <th>Descuento Aplicado (%)</th>
-                <th>Total por Producto</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (!Model.Any())
-            {
-                <tr>
-                    <td colspan="6" class="text-center">No hay productos en el carrito.</td>
-                </tr>
-            }
-            else
-            {
-                foreach (var item in Model)
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-normal mb-0">Carrito de Compras</h3>
+                    <div>
+                        <p class="mb-0"><span class="text-muted">Ordenar por:</span> <a href="#!" class="text-body">Precio <i class="fas fa-angle-down mt-1"></i></a></p>
+                    </div>
+                </div>
+
+                @if (!Model.Any())
                 {
-                    <tr>    
-                  
-                        <td>@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", item.Precio)</td>
-                        <td>@item.Cantidad</td>
-                        <td>@item.DescuentoAplicado %</td>
-                        <td>@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", item.Total)</td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.IdCarro" class="btn btn-primary btn-sm">Editar</a>
-                            <a asp-action="Delete" asp-route-id="@item.IdCarro" class="btn btn-danger btn-sm">Eliminar</a>
-                        </td>
-                    </tr>
+                    <div class="alert alert-info">No hay productos en el carrito.</div>
                 }
-            }
-        </tbody>
-    </table>
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        var nombreProducto = item.producto?.Nombre ?? "Producto no disponible";
+                        var precio = item.Precio ?? 0;
+                        var cantidad = item.Cantidad ?? 0;
+                        var descuento = item.DescuentoAplicado ?? 0;
+                        var totalPorProducto = (precio * cantidad) * (1 - (descuento / 100.0));
+                        var imagenUrl = item.producto?.ImageUrl ?? "/images/default-product.jpg"; //deberia mostrarse la imagen default pero no pasa nada 
 
-    @if (Model.Any())
-    {
-        <div class="text-right">
-            <h4>Total del Carrito: @String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", ViewBag.CartTotal)</h4>
+                        <div class="card rounded-3 mb-4">
+                            <div class="card-body p-4">
+                                <div class="row d-flex justify-content-between align-items-center">
+                                    <div class="col-md-2 col-lg-2 col-xl-2">
+                                        <img src="@imagenUrl" class="img-fluid rounded-3" alt="@nombreProducto">
+                                    </div>
+                                    <div class="col-md-3 col-lg-3 col-xl-3">
+                                        <p class="lead fw-normal mb-2">@nombreProducto</p>
+                                        <p>@item.producto.Descripcion</p>
+                                    </div>
+                                    <div class="col-md-3 col-lg-3 col-xl-2 d-flex"><!--esto deberia aumentar pero no lo esta tomando de hecho carga nomas  :C-->
+                                        <form method="post" action="@Url.Action("ActualizarCantidad", "Carroes")" style="display:inline;">
+                                            <input type="hidden" name="productoId" value="@item.PedidosProductosIdProducto" />
+                                            <button type="submit" class="btn btn-link px-2" name="accion" value="disminuir">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                            <input type="number" name="cantidad" value="@cantidad" min="0" class="form-control form-control-sm" style="width: 60px;" />
+                                            <button type="submit" class="btn btn-link px-2" name="accion" value="aumentar">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                                        <h5 class="mb-0">@String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", totalPorProducto)</h5>
+                                    </div>
+                                    <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+                                        <!-- esto elimina el producto ya que el delete no me funcaba hice un metodo nuevo xd -->
+                                        <form method="post" action="@Url.Action("EliminarProducto", "Carroes")" style="display:inline;">
+                                            <input type="hidden" name="productoId" value="@item.PedidosProductosIdProducto" />
+                                            <button type="submit" class="btn btn-link text-danger">
+                                                Eliminar Producto
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+                <div class="card mb-4">
+                    <div class="card-body p-4 d-flex flex-row">
+                        <div class="form-outline flex-fill">
+                            <input type="text" id="form1" class="form-control form-control-lg" />
+                            <label class="form-label" for="form1">Código de descuento</label>
+                        </div>
+                        <button type="button" class="btn btn-outline-warning btn-lg ms-3">Aplicar</button>
+                    </div>
+                </div>
+
+                @if (Model.Any())
+                {
+                    <div class="text-right">
+                        <h4>Total del Carrito: @String.Format(new System.Globalization.CultureInfo("es-CL"), "{0:C0}", ViewBag.TotalCarrito ?? 0)</h4>
+                    </div>
+                    <div class="text-right">
+                        <a asp-controller="Carroes" asp-action="Checkout" class="btn btn-warning btn-lg btn-block">Proceder al Pago</a>
+                    </div>
+                }
+            </div>
         </div>
-        <div class="text-right">
-            <a asp-action="Checkout" class="btn btn-success mt-3">Proceder al Pago</a>
-        </div>
-    }
-</div>
+    </div>
+</section>

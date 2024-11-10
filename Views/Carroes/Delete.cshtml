@@ -30,12 +30,11 @@
             @Html.DisplayFor(model => model.Precio)
         </dd>
     </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="IdCarro" />
-        <input type="hidden" asp-for="PedidosIdPedido" />
-        <input type="hidden" asp-for="PedidosProductosIdProducto" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" name="id" value="@Model.IdCarro" />
+        <input type="submit" value="Eliminar" class="btn btn-danger" />
     </form>
+
+  
 </div>

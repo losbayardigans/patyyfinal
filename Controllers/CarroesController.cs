@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using patyy.Models;
 
 namespace patyy.Controllers
@@ -20,15 +21,104 @@ namespace patyy.Controllers
 
         // GET: Carroes
 
-        public async Task<IActionResult> carrito()
+        public async Task<IActionResult> Carrito()
         {
-            var carros = await _context.Carros.ToListAsync();
+            var carrito = HttpContext.Session.GetObjectFromJson<List<Carro>>("Carrito");
+            if (carrito == null)
+            {
+                carrito = new List<Carro>();
+            }
 
-            // Calculate cart total
-            ViewBag.CartTotal = carros.Sum(c => c.Cantidad.GetValueOrDefault() * (c.Precio.GetValueOrDefault() - c.DescuentoAplicado));
+            foreach (var item in carrito)
+            {
+                item.producto = await _context.Productos
+                    .FirstOrDefaultAsync(p => p.IdProducto == item.PedidosProductosIdProducto);
+            }
 
-            return View("carrito", carros);
+            var totalCarrito = carrito.Sum(c => c.Total ?? 0);
+
+            ViewBag.TotalCarrito = totalCarrito;
+
+            return View(carrito); //devolvemos ala vista carrito 
         }
+        [HttpPost]
+        public IActionResult ActualizarCantidad(int productoId, string accion)
+        {
+            // Recuperamos la sesion del carrito 
+            var carrito = HttpContext.Session.GetObjectFromJson<List<Carro>>("Carrito");
+            if (carrito == null)
+            {
+                carrito = new List<Carro>();
+            }
+
+            // buscamos el producto ne el carrito 
+            var producto = carrito.FirstOrDefault(c => c.PedidosProductosIdProducto == productoId);
+
+            if (producto != null)
+            {
+                // actualizamos la cantidad enbase subamos o bajemos 
+                if (accion == "aumentar")
+                {
+                    producto.Cantidad++;
+                }
+                else if (accion == "disminuir" && producto.Cantidad > 1)  // evitamos que la cantidad sea 0 pero si pasa deberia eliminarse nose como hacerla 
+                {
+                    producto.Cantidad--;
+                }
+
+                // esto actualiza el total de prodcuto 
+                var precio = producto.Precio ?? 0;
+                var cantidad = producto.Cantidad ?? 0;
+                var descuento = producto.DescuentoAplicado ?? 0;
+                var totalCalculado = (precio * cantidad) * (1 - (descuento / 100.0));
+
+                // convierte el calculo de double  a int !
+                producto.Total = (int)Math.Round(totalCalculado);
+            }
+
+            // guardamos el carrito actualizado en la sesion 
+            HttpContext.Session.SetObjectAsJson("Carrito", carrito);
+
+            // nos vamos a carrito
+            return RedirectToAction("Carrito");
+        }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> EliminarProducto(int productoId)
+        {
+            // Obtenemos el carro de la sesion si no hay no muestra 
+            var carrito = HttpContext.Session.GetObjectFromJson<List<Carro>>("Carrito");
+
+            // si no existe inica uno vacio 
+            if (carrito == null)
+            {
+                carrito = new List<Carro>();
+            }
+
+            // buscamos el producto en el carrito mediante el id producto 
+            var productoAEliminar = carrito.FirstOrDefault(c => c.PedidosProductosIdProducto == productoId);
+
+            // si encontramos el producto lo eliminos 
+            if (productoAEliminar != null)
+            {
+                carrito.Remove(productoAEliminar);
+
+                // actualizamos la sesion con el carrito nuevo 
+                HttpContext.Session.SetObjectAsJson("Carrito", carrito);
+            }
+
+            // ya te la sabes 
+            return RedirectToAction(nameof(Carrito));
+        }
+
+
+
+
+
+
+
 
         public async Task<IActionResult> Index()
         {
@@ -126,16 +216,14 @@ namespace patyy.Controllers
             return View(carro);
         }
 
-        // GET: Carroes/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
+        // GET: Carroes/Delete/5
+        // GET: Carroes/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
             var carro = await _context.Carros
                 .FirstOrDefaultAsync(m => m.IdCarro == id);
+
             if (carro == null)
             {
                 return NotFound();
@@ -149,15 +237,18 @@ namespace patyy.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var carro = await _context.Carros.FindAsync(id);
+            var carro = await _context.Carros
+                .FirstOrDefaultAsync(m => m.IdCarro == id);
+
             if (carro != null)
             {
                 _context.Carros.Remove(carro);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Carrito));
         }
+
 
         private bool CarroExists(int id)
         {
