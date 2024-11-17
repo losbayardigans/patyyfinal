@@ -1,0 +1,47 @@
+﻿@model patyy.Models.CheckoutViewModel.ConfirmacionViewModel
+
+@{
+    ViewData["Title"] = "Confirmación de Compra";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<h3>¡Gracias por tu compra!</h3>
+<p>Tu pedido ha sido confirmado. A continuación, los detalles de tu compra:</p>
+
+<div>
+    <h4>Cliente:</h4>
+    <p>Nombre: @Model.Cliente.Nombre</p>
+    <p>Correo: @Model.Cliente.Correo</p>
+    <p>Dirección: @Model.Cliente.Direccion</p>
+</div>
+
+<div>
+    <h4>Productos:</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var producto in Model.Productos)
+            {
+                <tr>
+                    <td>@producto.Nombre</td>
+                    <td>@producto.Cantidad</td>
+                    <td>@producto.Precio</td>
+                    <td>@producto.Subtotal</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <h4>Total: @Model.Total</h4>
+    <p>¡Gracias por tu compra!</p>
+</div>

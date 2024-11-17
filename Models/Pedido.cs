@@ -7,7 +7,7 @@ public partial class Pedido
 {
     public int IdPedido { get; set; }
 
-    public string? Total { get; set; }
+    public int? Total { get; set; }
 
     public string? MetodoPago { get; set; }
 
@@ -15,7 +15,7 @@ public partial class Pedido
 
     public int ProductosIdProducto { get; set; }
 
-    public int ClienteIdCliente { get; set; }
+    public int?ClienteIdCliente { get; set; }
 
     public DateTime? FechaPedido { get; set; }
 
@@ -28,4 +28,5 @@ public partial class Pedido
     public virtual ICollection<EstadoHasPedido> EstadoHasPedidos { get; set; } = new List<EstadoHasPedido>();
 
     public virtual ICollection<PedidosHasProducto> PedidosHasProductos { get; set; } = new List<PedidosHasProducto>();
+   
 }

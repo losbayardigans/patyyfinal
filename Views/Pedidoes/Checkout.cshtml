@@ -1,0 +1,91 @@
+﻿@model patyy.Models.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="post" asp-action="ConfirmarCompra">
+    <div>
+        <label for="Nombre">Nombre:</label>
+        <input type="text" id="Nombre" name="Nombre" value="@Model.Nombre" />
+    </div>
+    <p>ID del cliente: @Model.ClienteIdCliente</p>
+
+    <div>
+        <label for="Direccion">Dirección:</label>
+        <input type="text" id="Direccion" name="Direccion" value="@Model.Direccion" />
+    </div>
+
+    <div>
+        <label for="Correo">Correo:</label>
+        <input type="email" id="Correo" name="Correo" value="@Model.Correo" />
+    </div>
+
+    <div>
+        <label for="MetodoPagoCredito">
+            <input type="radio" id="MetodoPagoCredito" name="MetodoPago" value="Credito"
+            @(Model.MetodoPago == "Credito" ? "checked" : "") />
+            Crédito
+        </label>
+    </div>
+    <div>
+        <label for="MetodoPagoDebito">
+            <input type="radio" id="MetodoPagoDebito" name="MetodoPago" value="Debito"
+            @(Model.MetodoPago == "Debito" ? "checked" : "") />
+            Débito
+        </label>
+    </div>
+    <div>
+        <label for="MetodoPagoPayPal">
+            <input type="radio" id="MetodoPagoPayPal" name="MetodoPago" value="PayPal"
+            @(Model.MetodoPago == "PayPal" ? "checked" : "") />
+            PayPal
+        </label>
+    </div>
+
+    <div>
+        <label for="EsInvitado">¿Es invitado?</label>
+        <input type="checkbox" id="EsInvitado" name="EsInvitado" @(Model.EsInvitado ? "checked" : "") />
+    </div>
+
+    <div>
+        @if (!Model.EsInvitado)
+        {
+            <input type="hidden" name="ClienteIdCliente" value="@Model.ClienteIdCliente" />
+        }
+    </div>
+
+    <h3>Productos en el carrito</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+           @foreach (var producto in Model.Productos)
+{
+                <input type="hidden" name="ClienteIdCliente" value="@Model.ClienteIdCliente" />
+    <input type="hidden" name="Productos[@Model.Productos.IndexOf(producto)].IdProducto" value="@producto.IdProducto" />
+    <input type="hidden" name="Productos[@Model.Productos.IndexOf(producto)].Nombre" value="@producto.Nombre" />
+    <input type="hidden" name="Productos[@Model.Productos.IndexOf(producto)].Cantidad" value="@producto.Cantidad" />
+    <input type="hidden" name="Productos[@Model.Productos.IndexOf(producto)].Precio" value="@producto.Precio" />
+}
+
+        </tbody>
+    </table>
+
+    <div>
+        <label for="Total">Total:</label>
+        <input type="text" id="Total" name="Total" value="@Model.Total" readonly />
+    </div>
+
+    <div>
+        <button type="submit">Confirmar Compra</button>
+    </div>
+</form>

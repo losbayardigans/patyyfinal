@@ -61,7 +61,7 @@ namespace patyy.Controllers
                 {
                     producto.Cantidad++;
                 }
-                else if (accion == "disminuir" && producto.Cantidad > 1)  // evitamos que la cantidad sea 0 pero si pasa deberia eliminarse nose como hacerla 
+                else if (accion == "disminuir" && producto.Cantidad > 1)  // no funca pero es algo por la vista 
                 {
                     producto.Cantidad--;
                 }
@@ -111,6 +111,57 @@ namespace patyy.Controllers
 
             // ya te la sabes 
             return RedirectToAction(nameof(Carrito));
+        }
+        [HttpPost]
+        public IActionResult AplicarDescuento(string codigo)
+        {
+            var carrito = HttpContext.Session.GetObjectFromJson<List<Carro>>("Carrito") ?? new List<Carro>();
+
+            decimal descuento = 0;
+
+            //esto es para manejar varios descuentos 
+            if (codigo == "DESCUENTO10")
+            {
+                descuento = 0.10M;
+            }
+            else if (codigo == "DESCUENTO15")
+            {
+                descuento = 0.15M;
+            }
+            else if (codigo == "DESCUENTO50")
+            {
+                descuento = 0.50M;
+            }
+            else
+            {
+                TempData["MensajeError"] = "Código de descuento no válido.";
+            }
+
+            // aplica descuento en cada producto
+            foreach (var item in carrito)
+            {
+                if (item.Precio.HasValue && item.Cantidad.HasValue)
+                {
+                    // calculamos el total con el descuento
+                    decimal precioConDescuento = (item.Precio.Value * item.Cantidad.Value) * (1 - descuento);
+
+                    // almacena el total con int  redondeando y pasandolo a int t
+                    item.Total = (int?)Math.Round(precioConDescuento); 
+
+                    // almacena el % como int
+                    item.DescuentoAplicado = (int?)Math.Round(descuento * 100); 
+                }
+            }
+
+            // calculamos el total despues del descuento
+            decimal totalCarrito = carrito.Sum(item => item.Total ?? 0); //usamos decimal para sacar el total
+            ViewBag.TotalCarrito = totalCarrito;
+
+            //guardamos la sesion del carro
+            HttpContext.Session.SetObjectAsJson("Carrito", carrito);
+
+            // Redirigir de vuelta al carrito
+            return RedirectToAction("Carrito");
         }
 
 

@@ -428,7 +428,7 @@ public partial class ProyectoFinalContext : DbContext
                 .HasMaxLength(45)
                 .HasColumnName("metodo_pago");
             entity.Property(e => e.Total)
-                .HasMaxLength(45)
+               .HasColumnType("int(11)")
                 .HasColumnName("total");
 
             entity.HasOne(d => d.ClienteIdClienteNavigation).WithMany(p => p.Pedidos)
