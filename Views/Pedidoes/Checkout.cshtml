@@ -1,91 +1,264 @@
-﻿@model patyy.Models.CheckoutViewModel
+﻿@using patyy.Models;
 
-@{
-    ViewData["Title"] = "Checkout";
-}
-
-<h2>@ViewData["Title"]</h2>
-
-<form method="post" asp-action="ConfirmarCompra">
-    <div>
-        <label for="Nombre">Nombre:</label>
-        <input type="text" id="Nombre" name="Nombre" value="@Model.Nombre" />
-    </div>
-    <p>ID del cliente: @Model.ClienteIdCliente</p>
-
-    <div>
-        <label for="Direccion">Dirección:</label>
-        <input type="text" id="Direccion" name="Direccion" value="@Model.Direccion" />
-    </div>
-
-    <div>
-        <label for="Correo">Correo:</label>
-        <input type="email" id="Correo" name="Correo" value="@Model.Correo" />
-    </div>
-
-    <div>
-        <label for="MetodoPagoCredito">
-            <input type="radio" id="MetodoPagoCredito" name="MetodoPago" value="Credito"
-            @(Model.MetodoPago == "Credito" ? "checked" : "") />
-            Crédito
-        </label>
-    </div>
-    <div>
-        <label for="MetodoPagoDebito">
-            <input type="radio" id="MetodoPagoDebito" name="MetodoPago" value="Debito"
-            @(Model.MetodoPago == "Debito" ? "checked" : "") />
-            Débito
-        </label>
-    </div>
-    <div>
-        <label for="MetodoPagoPayPal">
-            <input type="radio" id="MetodoPagoPayPal" name="MetodoPago" value="PayPal"
-            @(Model.MetodoPago == "PayPal" ? "checked" : "") />
-            PayPal
-        </label>
-    </div>
-
-    <div>
-        <label for="EsInvitado">¿Es invitado?</label>
-        <input type="checkbox" id="EsInvitado" name="EsInvitado" @(Model.EsInvitado ? "checked" : "") />
-    </div>
-
-    <div>
-        @if (!Model.EsInvitado)
-        {
-            <input type="hidden" name="ClienteIdCliente" value="@Model.ClienteIdCliente" />
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: 'Arial', sans-serif;
         }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .payment-buttons input {
+            margin-right: 10px;
+        }
+
+        .order-summary {
+            background-color: #f1f1f1;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+            .order-summary h5 {
+                font-weight: bold;
+                font-size: 1.4em;
+                color: #333;
+                margin-bottom: 15px;
+            }
+
+            .order-summary .total {
+                font-size: 1.6em;
+                font-weight: bold;
+                color: #27ae60;
+            }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+            .form-control:focus {
+                border-color: #27ae60;
+                box-shadow: 0 0 5px rgba(39, 174, 96, 0.5);
+            }
+
+        .btn-success {
+            background-color: #27ae60;
+            border-color: #27ae60;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+            .btn-success:hover {
+                background-color: #2ecc71;
+                border-color: #2ecc71;
+            }
+
+        .table th, .table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .table thead {
+            background-color: #f7f7f7;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .payment-methods {
+            margin-top: 20px;
+        }
+
+            .payment-methods input {
+                margin-left: 10px;
+            }
+
+        .form-group select {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form method="post" asp-action="ConfirmarCompra">
+            <div class="row">
+                <!-- Revisión del pedido -->
+                <div class="col-md-4">
+                    <div class="section-title">1. Revisa tu pedido</div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var producto in Model.Productos)
+                            {
+                                <tr>
+                                    <td>@producto.Nombre</td>
+                                    <td>@producto.Cantidad</td>
+                                    <td>@producto.Precio.ToString("C", new System.Globalization.CultureInfo("es-CL"))</td>
+                                    <td>@(producto.Cantidad * producto.Precio)</td>
+
+                                    <!-- Campos ocultos con índice correcto -->
+                                    <input type="hidden" name="Productos[@Model.Productos.IndexOf(producto)].IdProducto" value="@producto.IdProducto" />
+                                    <input type="hidden" name="Productos[@Model.Productos.IndexOf(producto)].Nombre" value="@producto.Nombre" />
+                                    <input type="hidden" name="Productos[@Model.Productos.IndexOf(producto)].Precio" value="@producto.Precio" />
+                                    <input type="hidden" name="Productos[@Model.Productos.IndexOf(producto)].Cantidad" value="@producto.Cantidad" />
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Dirección de entrega -->
+                <div class="col-md-4">
+                    <div class="section-title">2. Dirección de entrega</div>
+                    <div class="form-group">
+                        <label for="Correo">Correo electrónico</label>
+                        <input type="email" class="form-control" id="Correo" name="Correo" value="@Model.Correo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Nombre">Nombre</label>
+                        <input type="text" class="form-control" id="Nombre" name="Nombre" value="@Model.Nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Direccion">Dirección</label>
+                        <input type="text" class="form-control" id="Direccion" name="Direccion" value="@Model.Direccion" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Ciudad">Ciudad</label>
+                        <input type="text" class="form-control" id="Ciudad" name="Ciudad" value="@Model.Ciudad" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Region">Provincia/Región</label>
+                        <input type="text" class="form-control" id="Region" name="Region" value="@Model.Region" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CodigoPostal">Código Postal</label>
+                        <input type="text" class="form-control" id="CodigoPostal" name="CodigoPostal" value="@Model.CodigoPostal" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Pais">País</label>
+                        <select class="form-control" id="Pais" name="Pais" required>
+                            <option selected>@Model.pais</option>
+                            <option>Chile</option>
+                            <option>Estados Unidos</option>
+                            <option>México</option>
+                            <option>Canadá</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Método de pago -->
+                <div class="col-md-4">
+                    <div class="section-title">3. Método de pago</div>
+                    <div class="payment-methods">
+                        <input type="radio" name="MetodoPago" value="Tarjeta" checked onclick="togglePaymentFields()"> Tarjeta de Crédito/Débito
+                        <input type="radio" name="MetodoPago" value="Paypal" onclick="togglePaymentFields()"> PayPal
+                        <input type="radio" name="MetodoPago" value="Transferencia" onclick="togglePaymentFields()"> Transferencia Bancaria
+                    </div>
+
+                    <!-- Campos de tarjeta -->
+                    <div id="tarjetaFields" style="display: block;">
+                        <div class="form-group">
+                            <label for="NumeroTarjeta">Número de Tarjeta</label>
+                            <input type="text" class="form-control" id="NumeroTarjeta" name="NumeroTarjeta" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="FechaVencimiento">Fecha de Vencimiento</label>
+                            <input type="month" class="form-control" id="FechaVencimiento" name="FechaVencimiento" required>
+                        </div>
+                    </div>
+
+                    <!-- Campos de PayPal -->
+                    <div id="paypalFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="PaypalEmail">Correo de PayPal</label>
+                            <input type="email" class="form-control" id="PaypalEmail" name="PaypalEmail">
+                        </div>
+                    </div>
+
+                    <!-- Campos de Transferencia -->
+                    <div id="transferenciaFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="BancoCuenta">Número de cuenta bancaria</label>
+                            <input type="text" class="form-control" id="BancoCuenta" name="BancoCuenta">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen del pedido -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="order-summary">
+                        <h5>Resumen del Pedido</h5>
+                        <p>Total a Pagar: <span class="total">@Model.Total.ToString("C", new System.Globalization.CultureInfo("es-CL"))</span></p>
+                        <button type="submit" class="btn btn-success">Confirmar Compra</button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 
-    <h3>Productos en el carrito</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Precio</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-           @foreach (var producto in Model.Productos)
-{
-                <input type="hidden" name="ClienteIdCliente" value="@Model.ClienteIdCliente" />
-    <input type="hidden" name="Productos[@Model.Productos.IndexOf(producto)].IdProducto" value="@producto.IdProducto" />
-    <input type="hidden" name="Productos[@Model.Productos.IndexOf(producto)].Nombre" value="@producto.Nombre" />
-    <input type="hidden" name="Productos[@Model.Productos.IndexOf(producto)].Cantidad" value="@producto.Cantidad" />
-    <input type="hidden" name="Productos[@Model.Productos.IndexOf(producto)].Precio" value="@producto.Precio" />
-}
+    <script>
+        function togglePaymentFields() {
+            var metodoPago = document.querySelector('input[name="MetodoPago"]:checked').value;
 
-        </tbody>
-    </table>
+            // Ocultar todos los campos
+            document.getElementById("tarjetaFields").style.display = "none";
+            document.getElementById("paypalFields").style.display = "none";
+            document.getElementById("transferenciaFields").style.display = "none";
 
-    <div>
-        <label for="Total">Total:</label>
-        <input type="text" id="Total" name="Total" value="@Model.Total" readonly />
-    </div>
+            // Mostrar el campo correspondiente
+            if (metodoPago == "Tarjeta") {
+                document.getElementById("tarjetaFields").style.display = "block";
+            } else if (metodoPago == "Paypal") {
+                document.getElementById("paypalFields").style.display = "block";
+            } else if (metodoPago == "Transferencia") {
+                document.getElementById("transferenciaFields").style.display = "block";
+            }
+        }
 
-    <div>
-        <button type="submit">Confirmar Compra</button>
-    </div>
-</form>
+        // Inicializar el estado de los campos según la selección
+        togglePaymentFields();
+    </script>
+</body>
+</html>

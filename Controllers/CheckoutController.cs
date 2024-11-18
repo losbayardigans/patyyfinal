@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using patyy.Models;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,28 +16,35 @@ public class CheckoutController : Controller
     // GET: Checkout - Página de Checkout
     public IActionResult Index()
     {
+        // Obtener el carrito desde la sesión
         var carrito = HttpContext.Session.GetObjectFromJson<List<Carro>>("Carrito");
         if (carrito == null || !carrito.Any())
         {
             return RedirectToAction("Carrito", "Carroes");
         }
 
+        // Obtener el cliente autenticado
         var cliente = User.Identity.IsAuthenticated
             ? _context.Clientes.FirstOrDefault(c => c.Correo == User.Identity.Name)
             : null;
 
+        // Obtener el último pedido pendiente del cliente
+        var pedido = cliente != null
+            ? _context.Pedidos.FirstOrDefault(p => p.ClienteIdCliente == cliente.IdCliente && p.EstadoPedido == "Pendiente")
+            : null;
+
+        // Crear el modelo de Checkout
         var checkoutViewModel = new CheckoutViewModel
-        {//estos son auntenticadores 
-            ClienteIdCliente = User.Identity.IsAuthenticated
-           ? _context.Clientes.FirstOrDefault(c => c.Correo == User.Identity.Name)?.IdCliente
-           : null,
-            Nombre = User.Identity.IsAuthenticated
-           ? _context.Clientes.FirstOrDefault(c => c.Nombre == User.Identity.Name)?.Nombre
-           : null,
-            Direccion = User.Identity.IsAuthenticated
-           ? _context.Clientes.FirstOrDefault(c => c.Direccion == User.Identity.Name)?.Direccion
-           : null,
-            Correo = User.Identity.IsAuthenticated ? User.Identity.Name : null,
+        {
+            ClienteIdCliente = cliente?.IdCliente,
+            Nombre = cliente?.Nombre,
+            Direccion = cliente?.Direccion,
+            Correo = cliente?.Correo ?? User.Identity.Name,
+            // Obtener la información de Ciudad, Región y Código Postal desde el último pedido
+            Ciudad = pedido?.Ciudad,
+            Region = pedido?.Region,
+            CodigoPostal = pedido?.CodigoPostal,
+            pais = pedido?.pais,
             Productos = carrito.Select(item => new CheckoutViewModel.ProductoCarritoViewModel
             {
                 IdProducto = item.PedidosProductosIdProducto,
@@ -52,12 +58,11 @@ public class CheckoutController : Controller
         return View("~/Views/Pedidoes/Checkout.cshtml", checkoutViewModel);
     }
 
-
+    // POST: Confirmar compra
     [HttpPost]
     public async Task<IActionResult> ConfirmarCompra([FromForm] CheckoutViewModel model)
-    {   //esto basicamente es para verificar si el formulario esta siendo tomado lo cual si lo hace pero el problema es el id :C
-        Console.WriteLine("Recibido el formulario:");
-        Console.WriteLine($"Nombre: {model.Nombre}, Correo: {model.Correo}, MetodoPago: {model.MetodoPago}");
+    {
+        // Mostrar datos del formulario en la consola para depuración
         Console.WriteLine("Formulario recibido:");
         Console.WriteLine($"Nombre: {model.Nombre}");
         Console.WriteLine($"Dirección: {model.Direccion}");
@@ -65,48 +70,48 @@ public class CheckoutController : Controller
         Console.WriteLine($"Método de pago: {model.MetodoPago}");
         Console.WriteLine($"Es invitado: {model.EsInvitado}");
         Console.WriteLine($"Cliente ID: {model.ClienteIdCliente}");
+        Console.WriteLine($"Ciudad: {model.Ciudad}");
+        Console.WriteLine($"Región: {model.Region}");
+        Console.WriteLine($"Código Postal: {model.CodigoPostal}");
         Console.WriteLine($"Total: {model.Total}");
         Console.WriteLine($"Productos: {model.Productos?.Count} productos");
 
         if (ModelState.IsValid)
         {
-            int clienteId; // Ddeclaramos el clienteid (de IdCliente)
+            int clienteId;
 
-            // Caso de cliente invitado
+            // Si el cliente es invitado
             if (model.EsInvitado)
             {
-                //verifica las credenciales existentes
-                var clienteExistente = _context.Clientes.FirstOrDefault(c => c.Correo == model.Correo);
+                var clienteExistente = await _context.Clientes
+                    .FirstOrDefaultAsync(c => c.Correo == model.Correo);
+
                 if (clienteExistente != null)
                 {
-                    //si encuentra un id de cliente usamos ese 
                     clienteId = clienteExistente.IdCliente;
                 }
                 else
                 {
-                    // Crear un nuevo cliente
                     var clienteInvitado = new Cliente
                     {
                         Nombre = model.Nombre,
                         Direccion = model.Direccion,
                         Correo = model.Correo
                     };
-
                     _context.Clientes.Add(clienteInvitado);
                     await _context.SaveChangesAsync();
-
                     clienteId = clienteInvitado.IdCliente;
                 }
             }
             else
             {
-                // Si el cliente no es invitado, usamos el ID del modelo
+                // Si el cliente está registrado, buscamos el ID
                 clienteId = model.ClienteIdCliente ?? 0;
-                var clienteRegistrado = _context.Clientes.FirstOrDefault(c => c.IdCliente == clienteId);
+                var clienteRegistrado = await _context.Clientes
+                    .FirstOrDefaultAsync(c => c.IdCliente == clienteId);
 
                 if (clienteRegistrado == null)
                 {
-                    // Si no se encuentra el cliente registrado
                     return BadRequest("Cliente no encontrado.");
                 }
             }
@@ -116,20 +121,23 @@ public class CheckoutController : Controller
                 return BadRequest("No se pudo asignar un cliente válido.");
             }
 
-            // esto basicamente crea el pedido
+            // Crear el pedido
             var pedido = new Pedido
             {
                 ClienteIdCliente = clienteId,
                 MetodoPago = model.MetodoPago,
                 Total = model.Total,
                 EstadoPedido = "Pendiente",
-                FechaPedido = DateTime.Now
+                FechaPedido = DateTime.Now,
+                Ciudad = model.Ciudad,    // Se asignan los valores de la ciudad, región y código postal
+                Region = model.Region,
+                CodigoPostal = model.CodigoPostal
             };
 
             _context.Pedidos.Add(pedido);
             await _context.SaveChangesAsync();
 
-            // Agregas los productos al pedido
+            // Agregar productos al pedido
             foreach (var item in model.Productos)
             {
                 var pedidoProducto = new PedidosHasProducto
@@ -139,13 +147,10 @@ public class CheckoutController : Controller
                     Cantidad = item.Cantidad,
                     Precio = item.Precio
                 };
-
                 _context.PedidosHasProductos.Add(pedidoProducto);
             }
 
             await _context.SaveChangesAsync();
-
-          
 
             // Limpiar el carrito de la sesión
             HttpContext.Session.Remove("Carrito");
@@ -158,9 +163,7 @@ public class CheckoutController : Controller
         return View("~/Views/Pedidoes/Checkout.cshtml", model);
     }
 
-
-    // esto esta en alpha deberia ser complemento de confirmacion pedido pero ahi esta xd
-    /*
+    // GET: Confirmación del pedido
     public IActionResult Confirmacion(int id)
     {
         var pedido = _context.Pedidos
@@ -174,12 +177,12 @@ public class CheckoutController : Controller
             return NotFound();
         }
 
-        // Crear un ViewModel para la confirmación
         var confirmacionViewModel = new CheckoutViewModel.ConfirmacionViewModel
         {
             PedidoId = pedido.IdPedido,
             Total = pedido.Total.GetValueOrDefault(),
             Cliente = pedido.ClienteIdClienteNavigation,
+            MetodoPago = pedido.MetodoPago,
             Productos = pedido.PedidosHasProductos.Select(pp => new CheckoutViewModel.ProductoCarritoViewModel
             {
                 IdProducto = pp.Producto.IdProducto,
@@ -189,8 +192,6 @@ public class CheckoutController : Controller
             }).ToList()
         };
 
-        // Devolver la vista de confirmación con los detalles del pedido
         return View(confirmacionViewModel);
     }
-    */
 }

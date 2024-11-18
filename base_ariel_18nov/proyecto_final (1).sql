@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-11-2024 a las 06:23:12
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.0.30
+-- Tiempo de generación: 18-11-2024 a las 16:16:08
+-- Versión del servidor: 10.4.28-MariaDB
+-- Versión de PHP: 8.1.17
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -110,7 +110,8 @@ CREATE TABLE `cliente` (
 
 INSERT INTO `cliente` (`id_cliente`, `nombre`, `apellido`, `correo`, `contraseña`, `direccion`, `telefono`, `fecha_registro`, `estado_cliente`) VALUES
 (1, 'miguel', 'angel', 'facu3914@gmail.com', 'hola123', NULL, NULL, '2024-11-09 15:27:37', NULL),
-(2, 'angel', 'gonales', 'fac201@gmail.com', '1234', NULL, NULL, '2024-11-09 22:49:16', NULL);
+(2, 'angel', 'gonales', 'fac201@gmail.com', '1234', NULL, NULL, '2024-11-09 22:49:16', NULL),
+(3, 'ariel', 'villalobos', 'ariel.villalobos.garcia@cftmail.cl', 'benjamin10', NULL, NULL, '2024-11-18 08:59:58', NULL);
 
 -- --------------------------------------------------------
 
@@ -219,24 +220,29 @@ CREATE TABLE `pago` (
 CREATE TABLE `pedidos` (
   `id_pedido` int(11) NOT NULL,
   `total` varchar(45) DEFAULT NULL,
-  `metodo_pago` varchar(45) DEFAULT NULL,
-  `estado_pedido` varchar(45) DEFAULT NULL,
+  `metodo_pago` enum('Credito','Debito','PayPal') DEFAULT NULL,
+  `estado_pedido` enum('Pendiente','Procesado','Enviado','Completado','Cancelado') DEFAULT NULL,
   `productos_id_producto` int(11) NOT NULL,
   `cliente_id_cliente` int(11) NOT NULL,
-  `fecha_pedido` datetime DEFAULT NULL
+  `fecha_pedido` datetime DEFAULT NULL,
+  `CodigoPostal` varchar(100) DEFAULT NULL,
+  `Region` varchar(100) DEFAULT NULL,
+  `Ciudad` varchar(100) DEFAULT NULL,
+  `notas` text NOT NULL,
+  `pais` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Volcado de datos para la tabla `pedidos`
 --
 
-INSERT INTO `pedidos` (`id_pedido`, `total`, `metodo_pago`, `estado_pedido`, `productos_id_producto`, `cliente_id_cliente`, `fecha_pedido`) VALUES
-(0, NULL, 'pendiente', 'activo', 0, 1, '2024-11-09 17:34:15'),
-(0, '1000', 'Visa', 'Pendiente', 1, 1, NULL),
-(0, '1000', 'Visa', 'Pendiente', 2, 1, NULL),
-(0, '1000', 'Visa', 'Pendiente', 3, 1, NULL),
-(1, '3033', 'visa', '1', 1, 1, '2024-11-16 15:28:26'),
-(2, '5000', 'saf', 'sf', 2, 1, '2024-11-16 15:28:26');
+INSERT INTO `pedidos` (`id_pedido`, `total`, `metodo_pago`, `estado_pedido`, `productos_id_producto`, `cliente_id_cliente`, `fecha_pedido`, `CodigoPostal`, `Region`, `Ciudad`, `notas`, `pais`) VALUES
+(0, NULL, 'Credito', 'Procesado', 0, 1, '2024-11-09 17:34:15', '', '', '', '', NULL),
+(0, '1000', '', 'Pendiente', 1, 1, NULL, '', '', '', '', NULL),
+(0, '1000', '', 'Pendiente', 2, 1, NULL, '', '', '', '', NULL),
+(0, '1000', '', 'Pendiente', 3, 1, NULL, '', '', '', '', NULL),
+(1, '3033', '', 'Pendiente', 1, 1, '2024-11-16 15:28:26', '', '', '', '', NULL),
+(2, '5000', '', '', 2, 1, '2024-11-16 15:28:26', '', '', '', '', NULL);
 
 -- --------------------------------------------------------
 
@@ -455,7 +461,7 @@ ALTER TABLE `categorias`
 -- AUTO_INCREMENT de la tabla `cliente`
 --
 ALTER TABLE `cliente`
-  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `envios`

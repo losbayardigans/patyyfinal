@@ -419,17 +419,39 @@ public partial class ProyectoFinalContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("cliente_id_cliente");
             entity.Property(e => e.EstadoPedido)
-                .HasMaxLength(45)
+                .HasColumnType("enum('Pendiente', 'Procesado', 'Enviado', 'Completado', 'Cancelado')")
                 .HasColumnName("estado_pedido");
             entity.Property(e => e.FechaPedido)
                 .HasColumnType("datetime")
                 .HasColumnName("fecha_pedido");
             entity.Property(e => e.MetodoPago)
-                .HasMaxLength(45)
+                .HasColumnType("enum('Credito', 'Debito', 'PayPal')")
                 .HasColumnName("metodo_pago");
             entity.Property(e => e.Total)
                .HasColumnType("int(11)")
                 .HasColumnName("total");
+            entity.Property(e => e.CodigoPostal)
+                .HasMaxLength(100)
+                .HasColumnName("CodigoPostal");
+            entity.Property(e => e.Region)
+                .HasMaxLength(100)
+                .HasColumnName("Region");
+
+            entity.Property(e => e.Ciudad)
+                .HasMaxLength(100)
+                .HasColumnName("Ciudad");
+
+            entity.Property(e => e.notas)
+                .HasColumnType("text")
+                .HasColumnName("notas");
+
+            entity.Property(e => e.Total)
+                .HasColumnType("int(11)")
+                .HasColumnName("Total");
+
+            entity.Property(e => e.pais)
+                .HasMaxLength(100)
+                .HasColumnName("pais");
 
             entity.HasOne(d => d.ClienteIdClienteNavigation).WithMany(p => p.Pedidos)
                 .HasForeignKey(d => d.ClienteIdCliente)

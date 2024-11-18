@@ -19,6 +19,16 @@ public partial class Pedido
 
     public DateTime? FechaPedido { get; set; }
 
+    public string? CodigoPostal { get; set; }
+
+    public string? Region {  get; set; }
+
+    public string? Ciudad {  get; set; }
+
+    public string? notas {  get; set; }
+
+    public string? pais {  get; set; }
+
     public virtual ICollection<Boletum> Boleta { get; set; } = new List<Boletum>();
 
     public virtual Cliente ClienteIdClienteNavigation { get; set; } = null!;
